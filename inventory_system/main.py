@@ -1,62 +1,68 @@
-class Product:
+class Inventory:
     
-    def __init__(self, name, price, quantity, inventory):
-        self.name = name
-        self.price = price
-        self.quantity = quantity
-        self.inventory = {
+    inventory = {
     "Keyboard": 10,
     "Mouse": 25,
     "Monitor": 5
 }
+    
+    def __init__(self):
+        pass
         
-        def add_product(self):
-            if inventory == "Keyboard":
-                inventory.append(int)
-                print('Товар добавлен!')
+    def add_product(self, name, quantity):
+        self.inventory[name] = quantity
+        
+        if "Keyboard" in self.inventory:
+            self.inventory[name] = quantity
+            print('Товар добавлен!')
                 
-            if inventory == "Mouse":
-                inventory.append(int)
-                print('Товар добавлен!')
+        if "Mouse" in self.inventory:
+            self.inventory[name] = quantity
+            print('Товар добавлен!')
             
-            if inventory == "Monitor":
-                inventory.append(int)
-                print('Товар добавлен!')
-            else:
-                return 'Товара не существует!'
+        if "Monitor" in self.inventory:
+            self.inventory[name] = quantity
+            print('Товар добавлен!')
+        else:
+            return 'Товара не существует!'
         
-        def show_products(self):
-            return inventory
+    def show_products(self):
+        for key, value in self.inventory.items():
+            print(f"{key}: {value}")
         
-        def find_product(self):
-            if name:
-               print(f"Найден товар: {name}, Цена: {price}, Колво: {quantity}")
-            else:
-                print('Товар не найден')
+    def find_product(self):
+        if self.inventory("Mouse"):
+            print(f"Найден товар: {self.name}, Цена: {self.price}, Колво: {self.quantity}")
         
-        def delete_product(self):
-             if inventory == 'Monitor':
-                 inventory.remove('Monitor')
+        if self.inventory("Monitor"):
+            print(f"Найден товар: {self.name}, Цена: {self.price}, Колво: {self.quantity}")
+        
+        if self.inventory("Keyboard"):
+            print(f"Найден товар: {self.name}, Цена: {self.price}, Колво: {self.quantity}")
+        else:
+            print('Товар не найден')
+        
+    def delete_product(self):
+            if "Monitor" in self.inventory:
+                del self.inventory["Monitor"]
              
-             if inventory == 'Mouse':
-                 inventory.remove('Mouse')
+            if "Mouse" in self.inventory:
+                del self.inventory["Mouse"]
              
-             if inventory == 'Keyboard':
-                 inventory.remove('Keyboard')
-             else:
-                 return 'Товара нет!'
+            if "Keyboard" in self.inventory:
+                del self.inventory["Keyboard"]
+            else:
+                return 'Товара нет!'
             
-        def update_quantity(self):
-            if inventory == 'Mouse':
-                inventory.append(int)
+    def update_quantity(self):
+        if "Mouse" in self.inventory:
+            new_quantity = int(input("Введите количество: "))
+            self.inventory["Mouse"] = new_quantity
             
-            if inventory == 'Keyboard':
-                inventory.append(int)
+        if "Keyboard" in self.inventory:
+            new_quantity = int(input("Введите количество: "))
+            self.inventory["Keyboard"] = new_quantity
             
-            if inventory == 'Keyboard':
-                inventory.append(int)
-    
-class Inventory(Product):
-    
-    products = []
-    pass
+        if "Monitor" in self.inventory:
+            new_quantity = int(input("Введите количество: "))
+            self.inventory["Monitor"] = new_quantity
