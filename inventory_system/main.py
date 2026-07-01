@@ -30,16 +30,10 @@ class Inventory:
         for key, value in self.inventory.items():
             print(f"{key}: {value}")
         
-    def find_product(self):
-        if self.inventory("Mouse"):
-            print(f"Найден товар: {self.name}, Цена: {self.price}, Колво: {self.quantity}")
-        
-        if self.inventory("Monitor"):
-            print(f"Найден товар: {self.name}, Цена: {self.price}, Колво: {self.quantity}")
-        
-        if self.inventory("Keyboard"):
-            print(f"Найден товар: {self.name}, Цена: {self.price}, Колво: {self.quantity}")
-        else:
+    def find_product(self, name): 
+        if name in self.inventory: 
+            print(f"Найден товар: {name}") 
+        else: 
             print('Товар не найден')
         
     def delete_product(self):
