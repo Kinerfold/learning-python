@@ -1,1 +1,0 @@
-TOKEN = "ТВОЙ_ТОКЕН_ОТ_BOTFATHER"
