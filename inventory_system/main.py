@@ -28,10 +28,10 @@ class Inventory:
         
     def delete_product(self, name):
         if name not in self.inventory:
-             del self.inventory(name)
-             print('Товар удалён!')
+             print('Товар не найден!')
         else:
-            print('Товар не найден!')
+            del self.inventory(name)
+            print('Товар удалён!')
             
     def update_quantity(self, name):
         if name not in self.inventory:
@@ -43,10 +43,10 @@ class Inventory:
     def checking_quantity(self, name):
         new_quantity = int(input("Введите количество: "))
         if new_quantity >= 0:
-            self.inventory[name] = new_quantity
-            print(f'Количество изменено!')
-        else:
             print('Неверное количество!')
+        else:
+            self.inventory[name] = new_quantity
+            print('Количество изменено!')
     
     def all(self):
         for item in self.inventory:
