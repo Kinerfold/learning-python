@@ -11,9 +11,10 @@ class Inventory:
         
     def add_product(self, name, quantity):
         if name not in self.inventory:
-                print('Товар не найден!')
+            self.inventory[name] = quantity
+            print('Товар не найден!')
         else: 
-                print('Товар добавлен!')
+            print('Товар добавлен!')
         
     def show_products(self):
         for key, value in self.inventory.items():
@@ -27,7 +28,8 @@ class Inventory:
         
     def delete_product(self, name):
         if name not in self.inventory:
-            print('Товар не найден!')
+             del self.inventory(name)
+             print('Товар не найден!')
         else:
             del self.inventory[name]
             
