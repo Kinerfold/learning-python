@@ -1,3 +1,5 @@
+import json
+
 class Inventory:
 
     def __init__(self):
@@ -10,9 +12,9 @@ class Inventory:
     def add_product(self, name, quantity):
         if name not in self.inventory:
             self.inventory[name] = quantity
-            print('Товар не найден!')
-        else: 
             print('Товар добавлен!')
+        else: 
+            print('Товар не найден!')
         
     def show_products(self):
         for key, value in self.inventory.items():
@@ -27,9 +29,9 @@ class Inventory:
     def delete_product(self, name):
         if name not in self.inventory:
              del self.inventory(name)
-             print('Товар не найден!')
+             print('Товар удалён!')
         else:
-            del self.inventory[name]
+            print('Товар не найден!')
             
     def update_quantity(self, name):
         if name not in self.inventory:
@@ -45,3 +47,23 @@ class Inventory:
             print(f'Количество изменено!')
         else:
             print('Неверное количество!')
+    
+    def all(self):
+        for item in self.inventory:
+            print(item)
+    
+    def clear(self):
+        self.inventory.clear()
+        print(self.inventory)
+    
+    def save_data(self):
+        with open("data.json", "w", encoding="utf-8") as file:
+            json.dump(self.inventory, file)
+        
+        print('Данные записаны в файл json')
+    
+    def load_data(self):
+        with open('data.json', 'r', encoding='utf-8') as file:
+            self.inventory = json.load(file)
+        
+        print('Данные загружены')
