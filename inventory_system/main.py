@@ -11,10 +11,10 @@ class Inventory:
         
     def add_product(self, name, quantity):
         if name not in self.inventory:
+            print('Товар не найден!')
+        else:
             self.inventory[name] = quantity
             print('Товар добавлен!')
-        else: 
-            print('Товар не найден!')
         
     def show_products(self):
         for key, value in self.inventory.items():
