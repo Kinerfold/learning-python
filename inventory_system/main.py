@@ -1,13 +1,11 @@
 class Inventory:
-    
-    inventory = {
-        "Keyboard": 10,
-        "Mouse": 25,
-        "Monitor": 5
-    }
-    
+
     def __init__(self):
-        pass
+        self.inventory = {
+            "Keyboard": 10,
+            "Mouse": 25,
+            "Monitor": 5
+        }
         
     def add_product(self, name, quantity):
         if name not in self.inventory:
@@ -42,7 +40,7 @@ class Inventory:
     
     def checking_quantity(self, name):
         new_quantity = int(input("Введите количество: "))
-        if new_quantity > 0:
+        if new_quantity >= 0:
             self.inventory[name] = new_quantity
             print(f'Количество изменено!')
         else:
