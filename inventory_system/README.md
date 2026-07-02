@@ -1,0 +1,1 @@
+A little practice of my Python OOP knowledge
