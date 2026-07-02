@@ -24,7 +24,6 @@ if operation == '0':
 user = int(input('Первое число: '))
 user2 = int(input('Второе число: '))
 
-
 def plus(user, user2):
     return(user + user2)
 
@@ -41,9 +40,8 @@ try:
     print(user / user2)
 except ZeroDivisionError:
     print('Ошибка!')
-else:
-    print(user / user2)
-    
+except ValueError:
+    print('Это не число!')
     
 def degree(user, user2):
     return(user ** user2)
