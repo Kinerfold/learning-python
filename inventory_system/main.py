@@ -1,46 +1,47 @@
 class Inventory:
-    def __init__(self, inventory):
-        self.inventory = inventory
-        
-        inventory = {
+    
+    inventory = {
         "Keyboard": 10,
         "Mouse": 25,
         "Monitor": 5
     }
+    
+    def __init__(self):
+        pass
         
     def add_product(self, name, quantity):
-        if name in self.inventory:
-            self.inventory[name] = quantity
-            print('Товар добавлен!')
-        else:
-            print('Товар не найден')
+        if name is not self.inventory:
+                print('Товар не найден!')
+        else: 
+                print('Товар добавлен!')
         
     def show_products(self):
         for key, value in self.inventory.items():
             print(f"{key}: {value}")
 
-    def find_product(self, name): 
-        if name in self.inventory: 
-            print(f"Найден товар: {name}") 
+    def find_product(self, name):
+        if name is not self.inventory:
+                print('Товар не найден!')
         else: 
-            print('Товар не найден')
+                print(f"Найден товар: {name}") 
         
     def delete_product(self, name):
-            if name in self.inventory:
-                del self.inventory(name)
-            else:
-                print('Товар не найден')
+        if name is not self.inventory:
+            print('Товар не найден!')
+        else:
+            del self.inventory[name]
             
     def update_quantity(self, name):
-        if name in self.inventory:
-            new_quantity = int(input("Введите количество: "))
-            self.inventory(name) = new_quantity
+        if name not in self.inventory:
+            print('Товар не найден!')
         else:
-            print('Товар не найден')
-    
-    def checking_quantity(self, quantity):
-        if quantity > 0:
             new_quantity = int(input("Введите количество: "))
-            self.inventory(quantity) = new_quantity
+            self.inventory[name] = new_quantity
+    
+    def checking_quantity(self, name):
+        new_quantity = int(input("Введите количество: "))
+        if new_quantity > 0:
+            self.inventory[name] = new_quantity
+            print(f'Количество изменено!')
         else:
             print('Неверное количество!')
