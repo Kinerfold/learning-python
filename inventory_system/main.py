@@ -10,7 +10,7 @@ class Inventory:
         pass
         
     def add_product(self, name, quantity):
-        if name is not self.inventory:
+        if name not in self.inventory:
                 print('Товар не найден!')
         else: 
                 print('Товар добавлен!')
@@ -20,13 +20,13 @@ class Inventory:
             print(f"{key}: {value}")
 
     def find_product(self, name):
-        if name is not self.inventory:
+        if name not in self.inventory:
                 print('Товар не найден!')
         else: 
                 print(f"Найден товар: {name}") 
         
     def delete_product(self, name):
-        if name is not self.inventory:
+        if name not in self.inventory:
             print('Товар не найден!')
         else:
             del self.inventory[name]
