@@ -1,0 +1,1 @@
+Here I just copy, rewrite code or try to do something myself. Code can be taken from the internet.
