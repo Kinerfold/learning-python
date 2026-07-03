@@ -1,6 +1,50 @@
 from abc import ABC, abstractmethod
 import math
 
+class Vehicle(ABC):
+    
+    @abstractmethod
+    def start_engine(self):
+        pass
+    
+    @abstractmethod
+    def stop_engine(self):
+        pass
+    
+    @abstractmethod
+    def drive(self):
+        pass
+
+class Car(Vehicle):
+    def start_engine(self):
+        return 'Завёлся'
+    
+    def stop_engine(self):
+        return 'Заглушен'
+    
+    def drive(self):
+        return 'Едет'
+
+class Motorcycle(Vehicle):
+    def start_engine(self):
+        return 'Завёлся'
+    
+    def stop_engine(self):
+        return 'Заглушен'
+    
+    def drive(self):
+        return 'Едет'
+
+class Bicycle(Vehicle):
+    def start_engine(self):
+        return 'Завёлся'
+    
+    def stop_engine(self):
+        return 'Заглушен'
+    
+    def drive(self):
+        return 'Едет'
+
 # ---------------------------------------------------------------------------------------
 
 class Shape(ABC):
@@ -65,6 +109,10 @@ class Bird(Animal):
     def make_sound(self):
         return 'КАР!'
 
+car = Car()
+moto = Motorcycle()
+bic = Bicycle()
+
 dog = Dog()
 cat = Cat()
 bird = Bird()
@@ -73,9 +121,23 @@ rec = Rectangle(30, 50)
 circ = Circle(30)
 trian = Triangle(10, 10, 10)
 
+print(car.start_engine())
+print(car.stop_engine())
+print(car.drive())
+print()
+print(moto.start_engine())
+print(moto.stop_engine())
+print(moto.drive())
+print()
+print(bic.start_engine())
+print(bic.stop_engine())
+print(bic.drive())
+print()
+
 print(dog.make_sound())
 print(cat.make_sound())
 print(bird.make_sound())
+print()
 
 print(rec.area())
 print(circ.area())
