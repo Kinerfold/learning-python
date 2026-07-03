@@ -1,17 +1,81 @@
+from abc import ABC, abstractmethod
 import abc
+import math
 
-class Shape(abc.ABC):
-    @abc.abstractmethod
+class Shape(ABC):
+    
+    @abstractmethod
     def area(self):
+        pass
+    
+    @abstractmethod
+    def perimeter(self):
         pass
 
 class Rectangle(Shape):
     def __init__(self, width, height):
         self.width = width
         self.height = height
-        
+    
     def area(self):
         return self.width * self.height
+    
+    def perimeter(self):
+        pass
 
-rect = Rectangle(30, 50)
-print("Rectangle area:", rect.area())
+class Circle(Shape):
+    def __init__(self, radius):
+        self.radius = radius
+    
+    def area(self):
+        return self.radius * self.radius * 3.14
+    
+    def perimeter(self):
+        pass
+            
+class Triangle(Shape):
+    def __init__(self, a, b, c):
+        self.a = a
+        self.b = b
+        self.c = c
+    
+    def perimeter(self):
+        return self.a + self.b + self.c
+    
+    def area(self):
+        pass
+
+# ---------------------------------------------------------------------------------------
+
+# class Animal(ABC):
+#     @abstractmethod
+#     def make_sound(self):
+#         pass
+
+# class Dog(Animal):
+#     def make_sound(self):
+#         return 'ГАВ!'
+
+# class Cat(Animal):
+#     def make_sound(self):
+#         return 'МЯУ!'
+
+# class Bird(Animal):
+#     def make_sound(self):
+#         return 'КАР!'
+
+# dog = Dog()
+# cat = Cat()
+# bird = Bird()
+
+rec = Rectangle()
+circ = Circle()
+trian = Triangle()
+
+# print(dog.make_sound())
+# print(cat.make_sound())
+# print(bird.make_sound())
+
+print(rec.area())
+print(circ.area())
+print(trian.perimeter())
