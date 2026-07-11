@@ -1,31 +1,13 @@
-import pickle
+import shelve
 
-FILENAME = 'students.pkl'
+FILENAME = 'movies.db'
 
-students = {
-    "Иван": 5,
-    "Анна": 4,
-    "Максим": 3
-}
+user = input('Введите название фильма: ')
+user2 = input('Введите жанр фильма: ')
 
-while True:
+with shelve.open(FILENAME) as file:
+    file[user] = user2
+    
 
-    with open (FILENAME, 'wb') as file:
-        pickle.dump(students, file)
-
-    with open(FILENAME, 'rb') as file:
-        students = pickle.load(file)
-        
-        user = input('Введи имя студента: ')
-        if user in students:
-            print(students[user])
-            break
-        else:
-            print('\tСтудент не найден')
-            
-            a = input('\tХотите повторить? д/н ')
-            
-        if a == 'д':
-            continue
-        elif a == 'н':
-            break
+with shelve.open(FILENAME) as file:
+    print('\nВсе фильмы: ', file[user], '-', file[user2])
