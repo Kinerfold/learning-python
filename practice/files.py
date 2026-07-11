@@ -1,15 +1,31 @@
 import pickle
 
-FILENAME = 'games.pkl'
+FILENAME = 'students.pkl'
 
-games = ["Minecraft", 
-         "CS2", 
-         "Terraria"]
+students = {
+    "Иван": 5,
+    "Анна": 4,
+    "Максим": 3
+}
 
-with open(FILENAME, 'wb') as file:
-    pickle.dump(games, file)
+while True:
 
-with open(FILENAME, 'rb') as file:
-    games = pickle.load(file)
-    
-    print('Мой список игр: ', games)
+    with open (FILENAME, 'wb') as file:
+        pickle.dump(students, file)
+
+    with open(FILENAME, 'rb') as file:
+        students = pickle.load(file)
+        
+        user = input('Введи имя студента: ')
+        if user in students:
+            print(students[user])
+            break
+        else:
+            print('\tСтудент не найден')
+            
+            a = input('\tХотите повторить? д/н ')
+            
+        if a == 'д':
+            continue
+        elif a == 'н':
+            break
