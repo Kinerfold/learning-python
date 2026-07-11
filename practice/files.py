@@ -1,4 +1,15 @@
-with open('notes.txt', 'r', encoding='utf-8') as file:
-        line = file.readlines()
-        lines = len(line)
-        print('В файле строк: ', lines )
+import pickle
+
+FILENAME = 'games.pkl'
+
+games = ["Minecraft", 
+         "CS2", 
+         "Terraria"]
+
+with open(FILENAME, 'wb') as file:
+    pickle.dump(games, file)
+
+with open(FILENAME, 'rb') as file:
+    games = pickle.load(file)
+    
+    print('Мой список игр: ', games)
