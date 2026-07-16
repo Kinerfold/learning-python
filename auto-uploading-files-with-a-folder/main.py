@@ -10,7 +10,7 @@ def save():
     entry.get()
     
     with open(FILENAME, 'a', encoding="utf-8") as file:
-        file.write(str(entry.get()))
+        file.write(entry.get())
         file.write('\n')
 
 root = Tk()

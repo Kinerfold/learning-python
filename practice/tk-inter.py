@@ -1,28 +1,20 @@
 from tkinter import *
 from tkinter import ttk
-
-def display():
-    label['text'] = entry.get()
-    
-    if label:
-        entry.delete(0, END)
-    
-    if len(label['text']) > 15:
-        label['text'] = 'Слишком длинное имя!'
-
+from tkinter.messagebox import showinfo
+ 
 root = Tk()
-root.title('ОКНО 1')
+root.title("METANIT.COM")
 root.geometry("250x200")
-
-btn = ttk.Button(text='Поздороваться!', command=display)
-btn.pack()
-
-label = ttk.Label()
-label.pack()
-
-entry = ttk.Entry()
-entry.pack()
-
-entry.insert(0, "Введите имя!")
-
+ 
+def checkbutton_changed():
+    if enabled.get() == 1:
+        showinfo(title="Info", message="Включено")
+    else:
+        showinfo(title="Info", message="Отключено")
+ 
+enabled = IntVar()
+  
+enabled_checkbutton = ttk.Checkbutton(text="Включить", variable=enabled, command=checkbutton_changed)
+enabled_checkbutton.pack(padx=6, pady=6, anchor=NW)
+ 
 root.mainloop()
