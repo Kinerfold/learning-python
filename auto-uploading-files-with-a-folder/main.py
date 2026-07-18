@@ -8,11 +8,10 @@ def delete():
     entry.delete(0, END)
 
 def save():
-    entry.get()
-    
     if not entry.get():
             label2['text'] = 'Поле пустое!'
-            root.after(1800, label2.grid_remove())
+            label2.grid()
+            root.after(2000, label2.grid_remove)
     elif entry.get():
         with open(FILENAME, 'a', encoding="utf-8") as file:
             file.write(entry.get())
@@ -20,7 +19,7 @@ def save():
             
             label1['text'] = 'Сохранено!'
             label1.grid()
-            root.after(1800, label1.grid_remove())
+            root.after(2000, label1.grid_remove) 
 
 root = Tk()
 root.geometry('370x200')
