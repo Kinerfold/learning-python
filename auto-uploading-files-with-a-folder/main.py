@@ -19,11 +19,16 @@ def save():
             
             label1['text'] = 'Сохранено!'
             label1.grid()
-            root.after(2000, label1.grid_remove) 
+            root.after(2000, label1.grid_remove)
+
+def data():
+        with open(FILENAME, 'r', encoding='utf-8') as file:
+            file.readlines()
+            
 
 root = Tk()
 root.geometry('370x200')
-root.title('Тестовое окно')
+root.title('Тест Tkinter')
 
 label1 = ttk.Label()
 label1.place(x=125, y=45)
@@ -31,13 +36,19 @@ label1.place(x=125, y=45)
 label2 = ttk.Label()
 label2.place(x=135, y=45)
 
+label3 = ttk.Label()
+label3.place(x=165, y=45)
+
 entry = ttk.Entry()
 entry.place(x=100, y=70)
 
-btn1 = ttk.Button(text="Сборс", command=delete)
-btn1.place(x=70, y=95)
+delete_btn = ttk.Button(text="Сборс", command=delete)
+delete_btn.place(x=70, y=95)
 
-btn2 = ttk.Button(text='Сохранить', command=save)
-btn2.place(x=180, y=95)
+save_btn = ttk.Button(text='Сохранить', command=save)
+save_btn.place(x=180, y=95)
+
+savedata_btn = ttk.Button(text='Список сохранений', command=data)
+savedata_btn.place(x=105, y=125)
 
 root.mainloop()
