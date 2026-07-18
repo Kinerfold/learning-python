@@ -4,8 +4,7 @@ import time
 
 FILENAME = 'data.txt'
 
-def delete():
-    entry.delete(0, END)
+def delete(): entry.delete(0, END)
 
 def save():
     if not entry.get():
@@ -24,7 +23,7 @@ def save():
 def data():
         with open(FILENAME, 'r', encoding='utf-8') as file:
             file.readlines()
-            
+            pass
 
 root = Tk()
 root.geometry('370x200')
