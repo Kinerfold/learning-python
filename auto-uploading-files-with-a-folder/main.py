@@ -53,7 +53,7 @@ noclear.place(x=165, y=45)
 entry = ttk.Entry()
 entry.place(x=100, y=70)
 
-deletebtn = ttk.Button(text="Сборс", command=delete)
+deletebtn = ttk.Button(text="Сброс", command=delete)
 deletebtn.place(x=70, y=95)
 
 savebtn_savebtnn = ttk.Button(text='Сохранить', command=save)
