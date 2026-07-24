@@ -19,19 +19,17 @@ def save():
             savebtn['text'] = 'Сохранено!'  
             savebtn.grid()
             root.after(2000, savebtn.grid_remove)
+            entry.delete(0, END)
 
 def data():
-    if entry.get():
-        with open(FILENAME, 'w', encoding="utf-8") as file:
-            pass
+    entry.get() or not entry.get()
+    with open(FILENAME, 'w', encoding="utf-8") as file:
+        pass
         
-        isclear['text'] = 'Файл очищен!'
-        isclear.grid()
-        root.after(2000, isclear.grid_remove)
-    elif os.path.getsize(FILENAME) == 0:
-        noclear['text'] = 'Файл уже пуст!'
-        noclear.grid()
-        root.after(2000, noclear.grid_remove)
+    isclear['text'] = 'Файл очищен!'
+    isclear.grid()
+    root.after(2000, isclear.grid_remove)
+    entry.delete(0, END)
 
 root = Tk()
 root.geometry('370x200')
