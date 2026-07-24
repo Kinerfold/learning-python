@@ -21,8 +21,7 @@ def save():
             root.after(2000, label1.grid_remove)
 
 def data():
-        with open(FILENAME, 'r', encoding='utf-8') as file:
-            file.readlines()
+        # очистка data.txt
             pass
 
 root = Tk()
