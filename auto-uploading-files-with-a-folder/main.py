@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk
-import time
+import os
 
 FILENAME = 'data.txt'
 
@@ -16,13 +16,22 @@ def save():
             file.write(entry.get())
             file.write('\n')
             
-            savebtn['text'] = 'Сохранено!'
+            savebtn['text'] = 'Сохранено!'  
             savebtn.grid()
             root.after(2000, savebtn.grid_remove)
 
 def data():
-    with open(FILENAME, 'w') as file:
-        pass
+    if entry.get():
+        with open(FILENAME, 'w', encoding="utf-8") as file:
+            pass
+        
+        isclear['text'] = 'Файл очищен!'
+        isclear.grid()
+        root.after(2000, isclear.grid_remove)
+    elif os.path.getsize(FILENAME) == 0:
+        noclear['text'] = 'Файл уже пуст!'
+        noclear.grid()
+        root.after(2000, noclear.grid_remove)
 
 root = Tk()
 root.geometry('370x200')
@@ -36,6 +45,12 @@ empty.place(x=135, y=45)
 
 clear = ttk.Label()
 clear.place(x=165, y=45)
+
+isclear = ttk.Label()
+isclear.place(x=165, y=45)
+
+noclear = ttk.Label()
+noclear.place(x=165, y=45)
 
 entry = ttk.Entry()
 entry.place(x=100, y=70)
