@@ -1,18 +1,26 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
- 
-root = Tk()
-root.title("METANIT.COM")
-root.geometry("250x200")
+import os
 
- 
-# открываем файл в текстовое поле
 def open_file():
     filepath = filedialog.askopenfilename()
- 
-open_button = ttk.Button(text="Открыть файл", command=open_file)
-open_button.grid(column=0, row=1, sticky=NSEW, padx=10)
+    
+    with open(filepath, 'r', encoding='utf-8') as f:
+        data = f.read()
+        
+        if data:
+            label = ttk.Label(root, text=filepath, font=("Arial", 12))
+            label.pack(pady=70)
+            label.after(3000, lambda: label.pack_forget())
+        else:
+            return False
 
+root = Tk()
+root.title("Save Files")
+root.geometry("450x400")
+
+open_button = ttk.Button(text="Открыть файл", command=open_file)
+open_button.pack(expand=True, fill=X, padx=[70, 70], pady=30)
 
 root.mainloop()
