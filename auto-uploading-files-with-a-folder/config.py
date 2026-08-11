@@ -2,7 +2,6 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 import os
-import main
 
 def open_file():
     filepath = filedialog.askopenfilename()
@@ -11,7 +10,7 @@ def open_file():
         data = f.read()
         
         if data:
-            os.system('python main.py')
+            os.startfile(filepath, 'runas')
             label = ttk.Label(root, text=filepath, font=("Arial", 12))
             label.pack(pady=70)
             label.after(3000, lambda: label.pack_forget())
