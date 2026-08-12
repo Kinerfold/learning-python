@@ -25,3 +25,5 @@ open_button = ttk.Button(text="Открыть файл", command=open_file)
 open_button.pack(expand=True, fill=BOTH, padx=[70, 70], pady=130)
 
 root.mainloop()
+
+# does not work
