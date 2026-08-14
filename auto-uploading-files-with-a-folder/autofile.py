@@ -22,7 +22,7 @@ root.title("Save Files")
 root.geometry("450x500")
 
 open_button = ttk.Button(text="Открыть файл", command=open_file)
-open_button.pack(expand=True, fill=BOTH, padx=[70, 70], pady=130)
+open_button.pack(expand=True, fill=BOTH, padx=[80, 70], pady=130)
 
 root.mainloop()
 
