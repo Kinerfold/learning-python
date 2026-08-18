@@ -1,13 +1,45 @@
-# double = lambda a, b: a * 2
+# numbers = [1, 2, 3, 4, 5]
 
-# print(double(5, 2))
+# user = list(map(lambda a: a * 2, numbers))
+# print(user)
 
 
-is_even = lambda a: a % 2
-print(is_even(5))
 
-if is_even:
-    print(False)
-else:
-    print(True)
+# numbers = [3, 8, 11, 14, 17, 20, 25]
 
+# user = list(filter(lambda x: True if x % 2 == 0 else False, numbers))
+# print(user)
+
+
+
+# numbers = []
+
+# user = input('Введите 5 чисел: ')
+# numbers.append(user.split())
+
+# print(numbers)
+
+
+
+# words = ["python", "cat", "programming", "code", "computer"]
+
+# sort = list(sorted(words, key=len))
+
+# print(sort)
+
+
+
+# numbers = [4, 15, 7, 22, 9, 31, 2, 18]
+
+# func = list(filter(lambda x: True if x > 10 else False, numbers))
+
+# print(func)
+
+
+
+numbers = [3, 8, 12, 15, 20, 25, 30]
+
+func = filter(lambda x: x > 10, numbers)
+func2 = list(map(lambda a: a * 3, func))
+
+print(func2)
