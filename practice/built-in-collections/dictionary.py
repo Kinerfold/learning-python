@@ -1,4 +1,5 @@
 # словарь
+# for key, value in dictionary
 
 # dictionary = { ключ1:значение1, ключ2:значение2, ....}
 
