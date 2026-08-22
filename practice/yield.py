@@ -3,7 +3,7 @@
 #         if i % 2 != 0:
 #             yield i
             
-# gen = odd_numbers(10)
+# gen = odd_numbers(10) <-- это генератор функции для yield
 
 # print(next(gen))
 # print(next(gen))
