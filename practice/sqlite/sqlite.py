@@ -10,17 +10,20 @@ cursor = con.cursor()
 
 # Создаем таблицу people CREATE TABLE
 
+
+# Можно добавить IF NOT EXISTS, если её ещё нет
 # cursor.execute("""CREATE TABLE people
 #                (id INTEGER PRIMARY KEY AUTOINCREMENT,
 #                name TEXT,
 #                age INTEGER)
 #                """)
 
+# -----------------------------------------------------------------------
 
 # Добавляем строку в таблицу people INSERT INTO (делать ПОСЛЕ создания таблицы)
 # name = TOM, age = 38
 
-# Выражение INSERT открывает транзакцию. Для закрытия транзакции используем commit()
+# Выражение INSERT добавляет что то. Для закрытия транзакции используем commit()
 # cursor.execute("INSERT INTO people (name, age) VALUES ('TOM', 38)")
 
 
