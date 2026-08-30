@@ -27,7 +27,8 @@ def choose():
         user_price = input('Напиши цену: ')
         user_quantity = input('Напиши колво: ')
         
-        cursor.execute("INSERT INTO products (name, price, quantity) VALUES (?, ?, ?)", (user_name, user_price, user_quantity))
+        cursor.execute("INSERT INTO products (name, price, quantity) VALUES (?, ?, ?)", 
+                       (user_name, user_price, user_quantity))
         con.commit()
         
         print(cursor.fetchall())
