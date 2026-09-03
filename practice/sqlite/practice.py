@@ -34,13 +34,13 @@ def choose():
         print(cursor.fetchall())
 
 
-    if user == 2:
+    elif user == 2:
         cursor.execute("SELECT * FROM products")
         con.commit()
         
         print(cursor.fetchall())
     
-    if user == 3:
+    elif user == 3:
         user_name = input('Введи имя: ')
         
         cursor.execute("SELECT * FROM products WHERE name=?", (user_name,))
@@ -48,7 +48,7 @@ def choose():
         
         print(cursor.fetchall())
     
-    if user == 4:
+    elif user == 4:
         user_id = input('Введи ID: ')
         user_price = input('Введи цену: ')
         
@@ -60,7 +60,7 @@ def choose():
         
         print(cursor.fetchall())
     
-    if user == 5:
+    elif user == 5:
         user_id = input('Введи ID: ')
         user_quantity = input('Введи колво: ')
         
@@ -72,7 +72,7 @@ def choose():
         
         print(cursor.fetchall())
     
-    if user == 6:
+    elif user == 6:
         user_id = input('ID: ')
         
         cursor.execute("DELETE FROM products WHERE id=?", (user_id))
@@ -83,7 +83,7 @@ def choose():
         
         print(cursor.fetchall())
     
-    if user == 0:
+    elif user == 0:
         print('Пока!')
         quit()
     
