@@ -295,7 +295,7 @@ import sqlite3
 # ORDER BY price ASC
 
 
-# DESC - по убыванию (descending)
+# DESC - по убыванию (descending). От большего к меньшему
 
 # SELECT * FROM products
 # ORDER BY price DESC
