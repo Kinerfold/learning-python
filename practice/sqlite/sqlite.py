@@ -267,3 +267,99 @@ import sqlite3
 # -----------------------------------------------------------------------
 
 
+# Оператор DISTINCT выбирает уникальные значения (где нету одинаковых значений)
+
+
+# SELECT DISTINCT company FROM products
+
+# Если в нескольких строках  значение NULL, то оператор DISTINCT отберет из них только одну строку.
+
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
+
+# Сортировка ORDER BY
+
+
+# ORDER BY price - сортировка по цене
+
+# SELECT * FROM products
+# ORDER BY price
+
+
+# ASC - по возрастанию. ASC означает ascending - по возрастанию
+# ASC можно не писать, т.к ORDER BY уже его использует
+
+# ELECT * FROM products
+# ORDER BY price ASC
+
+
+# DESC - по убыванию (descending)
+
+# SELECT * FROM products
+# ORDER BY price DESC
+
+
+# SELECT name, price
+# FROM products
+# ORDER BY price DESC
+
+
+
+
+# ORDER BY + WHERE
+
+# Пример: нужны товары дороже 2000 рублей
+
+# SELECT *
+# FROM products
+# WHERE price > 2000
+# ORDER BY price
+
+
+# Пример:
+
+# SELECT *
+# FROM products
+# WHERE price > 2000
+# ORDER BY price DESC
+
+
+
+# ORDER BY + LIMIT
+
+# LIMIT ограничивает колво результатов, то есть будет выведено определённое колво результата
+
+# SELECT *
+# FROM products
+# ORDER BY price DESC
+# LIMIT 2
+
+# Вывод: Monitor - 120000 | Keyboard - 5000
+
+
+
+# ORDER BY с вычислением
+
+# SELECT name, price, quantity
+# FROM products
+# ORDER BY price * quantity DESC
+
+
+# SQLite вычисляет price * quantity и сортирует по этому значению
+
+# Keyboard | 5000 × 10 = 50000
+# Mouse | 1500 × 25 = 37500
+# Monitor | 12000 × 5  = 60000
+
+# Вывод: Monitor, Keyboard, Mouse
+
+
+
+
+
+
+
+
+
