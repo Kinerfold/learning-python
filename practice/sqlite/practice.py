@@ -1,95 +1,113 @@
 import sqlite3
 
-con = sqlite3.connect('test.db')
+con = sqlite3.connect('testdb.db')
 
 cursor = con.cursor()
 
-cursor.execute('''CREATE TABLE IF NOT EXISTS products
+con.execute("PRAGMA foreign_keys = ON")
+
+# cursor.execute("DROP TABLE IF EXISTS users")
+# cursor.execute("DROP TABLE IF EXISTS orders")
+
+cursor.execute("""CREATE TABLE IF NOT EXISTS users
                (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT,
-                price INTEGER,
-                quantity INTEGER)
-                ''')
+               name TEXT NOT NULL,
+               email TEXT UNIQUE,
+               age INTEGER CHECK(age >=18 ))
+               """)
+
+cursor.execute("""CREATE TABLE IF NOT EXISTS orders
+               (id INTEGER PRIMARY KEY AUTOINCREMENT,
+               product TEXT NOT NULL,
+               price INTEGER CHECK(price > 0),
+               quantity INTEGER DEFAULT 1 CHECK(quantity > 0),
+               user_id INTEGER,
+               
+               FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE)""")
 
 con.commit()
 
-def choose():
-    user = int(input('''1. Добавить товар\n
-    2. Показать товары\n
-    3. Найти товар\n
-    4. Изменить цену\n
-    5. Изменить количество\n
-    6. Удалить товар\n
-    0. Выход\n'''))
 
-    if user == 1:
-        user_name = input('Напиши имя: ')
-        user_price = input('Напиши цену: ')
-        user_quantity = input('Напиши колво: ')
+def work():
+    menu = int(input("1. Добавить пользователя\n2. Показать пользователей\n3. Найти пользователя\n4. Добавить заказ\n5. Показать все заказы\n6. Показать заказы конкретного пользователя\n7. Найти заказы по товару\n8. Показать самые дорогие заказы\n9. Удалить пользователя\n0. Выход\n"))
+    
+    if menu == 1:
+        name_user = input('Имя: ')
+        email_user = input('Email: ')
+        age_user = int(input('Возраст: '))
         
-        cursor.execute("INSERT INTO products (name, price, quantity) VALUES (?, ?, ?)", 
-                       (user_name, user_price, user_quantity))
+        cursor.execute("INSERT INTO users (name, email, age) VALUES (?, ?, ?)",
+                       (name_user, email_user, age_user))
+        
         con.commit()
         
+        print('Пользователь добавлен!')
+    
+    elif menu == 2:
+        cursor.execute("SELECT * FROM users")
+        
         print(cursor.fetchall())
+    
+    elif menu == 3:
+        name_user = input('Введите имя: ')
 
+        cursor.execute("SELECT * FROM users WHERE name LIKE ?",
+                       (name_user,))
 
-    elif user == 2:
-        cursor.execute("SELECT * FROM products")
+        print(cursor.fetchall())
+    
+    elif menu == 4:
+        user_id = int(input('ID: '))
+        user_product = input('Товар: ')
+        user_price = int(input('Цена: '))
+        user_quantity = int(input('Количество: '))
+        
+        cursor.execute("INSERT INTO orders (user_id, product, price, quantity) VALUES (?, ?, ?, ?)",
+                       (user_id, user_product, user_price, user_quantity))
+        
         con.commit()
+        
+        print('Заказ добавлен')
+    
+    elif menu == 5:
+        cursor.execute("SELECT users.name, orders.product FROM users JOIN orders ON users.id = orders.user_id")
+    
+        print(cursor.fetchall())
+        
+    elif menu == 6:
+        user_id = int(input('ID: '))
+        
+        cursor.execute("SELECT * FROM orders WHERE user_id=?",
+                       (user_id,))
         
         print(cursor.fetchall())
     
-    elif user == 3:
-        user_name = input('Введи имя: ')
+    elif menu == 7:
+        user_product = input('Введите товар: ')
         
-        cursor.execute("SELECT * FROM products WHERE name=?", (user_name,))
-        con.commit()
-        
-        print(cursor.fetchall())
-    
-    elif user == 4:
-        user_id = input('Введи ID: ')
-        user_price = input('Введи цену: ')
-        
-        cursor.execute("UPDATE products SET price=? WHERE id=?", (user_price, user_id))
-        con.commit()
-        
-        cursor.execute("SELECT * FROM products")
-        con.commit()
+        cursor.execute('SELECT product FROM orders WHERE product LIKE ?',
+                       (f"%{name_user}%",))
         
         print(cursor.fetchall())
     
-    elif user == 5:
-        user_id = input('Введи ID: ')
-        user_quantity = input('Введи колво: ')
-        
-        cursor.execute("UPDATE products SET quantity=? WHERE id=?", (user_quantity, user_id))
-        con.commit()
-        
-        cursor.execute("SELECT * FROM products")
-        con.commit()
+    elif menu == 8:
+        cursor.execute("SELECT price, quantity FROM orders ORDER BY price * quantity DESC LIMIT 3")
         
         print(cursor.fetchall())
     
-    elif user == 6:
-        user_id = input('ID: ')
+    elif menu == 9:
+        user_id = int(input('ID: '))
         
-        cursor.execute("DELETE FROM products WHERE id=?", (user_id))
+        cursor.execute("DELETE FROM users WHERE id=?",
+                       (user_id,))
+        
         con.commit()
         
-        cursor.execute("SELECT * FROM products")
-        con.commit()
+        print('Пользователь удалён!')
+    
+    elif menu == 0:
+        print('Пока!')     
         
-        print(cursor.fetchall())
-    
-    elif user == 0:
-        print('Пока!')
-        quit()
-    
-    return choose
-        
-    
-    
+        quit()  
 
-choose()
+work()
