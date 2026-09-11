@@ -355,11 +355,200 @@ import sqlite3
 
 # Вывод: Monitor, Keyboard, Mouse
 
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
+# Агрегатные функции: AVG, SUM, MIN, MAX, COUNT
+
+# Пример:
+# SELECT price FROM products | Вывод: 5000, 2000, 15000, 3000
+
+# SELECT MAX(price) FROM products | Вывод: 15000
+
+
+
+# 1. COUNT() - Посчитать
+
+# SELECT COUNT(*) FROM products | Вывод: 4
+
+# * считает строки
+
+
+# COUNT(column) - Можно указать конкретный столбец
+
+# SELECT COUNT(price) FROM products
+
+# Он посчитает строки, где price не является NULL. Значения NULL игнорируются.
+
+
+
+# COUNT(DISTINCT) - DISTINCT убирает повторяющиеся строки
+
+
+# product   | company
+# ----------|---------
+# Keyboard  | Logitech
+# Mouse     | Logitech
+# Monitor   | Samsung
+# Headset   | HyperX
+
+# SELECT COUNT(company) FROM products | Вывод: 3 строки
+
+
+
+# SUM() - складывает значения столбца
+
+
+# quantity - 2, 5, 1, 3
+
+# SELECT SUM(quantity) FROM products | Вывод: 11
+
+# Можно сделать вот так: SELECT SUM(price * quantity) FROM products
 
 
 
 
+# AVG() - вычисляет среднее значение
 
 
+# price - 5000, 2000, 15000, 3000
+
+# SELECT AVG(price) FROM products | Вывод: 6250 т.к (5000 + 2000 + 15000 + 3000) / 4 = 6250
+
+
+# Можно использовать WHERE
+
+# SELECT AVG(price) FROM products WHERE quantity > 1 | Сначала отфильтруй товары, где количество больше 1, а потом посчитай их среднюю цену.
+
+# WHERE → какие строки берём
+# AVG   → что с ними считаем
+
+
+
+
+# MIN() и MAX() - находят самое минимальное и максимальное значение
+
+# SELECT MIN(price) FROM products
+
+# SELECT MAX(price) FROM products
+
+
+
+
+# Можно использовать несколько функций сразу
+
+
+# SELECT
+#     COUNT(*) AS total_products,
+#     SUM(quantity) AS total_quantity,
+#     MIN(price) AS min_price,
+#     MAX(price) AS max_price,
+#     AVG(price) AS average_price
+# FROM products
+
+
+
+# AS - задаёт название результата
+
+
+# Без AS:
+
+# SELECT AVG(price) FROM products | Вывод: AVG(price)
+
+# С AS:
+
+# SELECT AVG(price) AS average_price FROM products | Вывод: average_price - 6250
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
+# HAVING в GROUP BY
+# HAVING фильтрует группы
+
+
+# WHERE  → фильтрует отдельные строки
+# HAVING → фильтрует группы
+
+
+
+# SELECT company, COUNT(*)
+# FROM products
+# GROUP BY company
+# HAVING COUNT(*) > 2
+
+# Что делает: показывает только те компании, у которых больше 2 товаров.
+
+
+
+# Можно использовать с WHERE, GROUP BY, HAVING
+
+# SELECT company, COUNT(*)
+# FROM products
+# WHERE price > 30000
+# GROUP BY company   # Какие строки оставить? Выводит по company
+# HAVING COUNT(*) >= 2
+
+
+# 1. WHERE → убираем товары с price <= 30000
+# 2. GROUP BY → группируем оставшиеся товары по company
+# 3. COUNT(*) → считаем товары каждой компании
+# 4. HAVING → оставляем компании, где товаров >= 2
+
+
+
+# Отличия WHERE от HAVING в том, что WHERE фильтрует отдельные строки, а HAVING фильтрует группы.
+
+# HAVING фильтрует группы ПОСЛЕ группировки
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
+
+# Подзапросы в SQLite
+
+# Подзапрос — это один SQL-запрос внутри другого SQL-запроса.
+
+
+# SELECT *
+# FROM products
+# WHERE price > (SELECT AVG(price) FROM products)
+
+
+# (SELECT AVG(price) FROM products) - Подзапрос находит среднюю цену
+
+# Подзапрос становится таким:
+
+# SELECT *
+# FROM products
+# WHERE price > 45000
+
+
+# Подзапросы также может быть в SELECT
+
+
+# Подзапрос = сначала получить какое-то значение/данные отдельным запросом, а потом использовать их в основном запросе.
+
+# Сверху был Некоррелирующей подзапрос. Он просто находит среднюю цену и всё.
+
+
+
+# Дальше будут Коррелирующие подзапросы
+
+
+# SELECT name, age
+# FROM users AS user
+# WHERE age > (
+#     SELECT AVG(age)
+#     FROM users AS subuser
+#     WHERE subuser.company_id = user.company_id
+# )
+
+# Подзапрос смотрит на company_id текущего пользователя. 
+
+# Поэтому такой подзапрос называется коррелирующим — его результат зависит от текущей строки основного запроса.
+
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 
 
