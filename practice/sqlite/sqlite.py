@@ -552,3 +552,286 @@ import sqlite3
 # -----------------------------------------------------------------------
 
 
+# Синтаксис EXISTS (подзапрос)
+
+# EXISTS буквально говорит, "Существует ли хотя бы одна строка, подходящая под условие?"
+
+# Если подзапрос нашёл хотя бы 1 строку - EXISTS возвращает 1. Если нет, то - 0
+
+
+# Пример:
+
+# SELECT EXISTS(
+#     SELECT id
+#     FROM users
+#     WHERE name = 'Alex'
+# )
+
+
+
+# В EXISTS обычно используется WHERE
+
+# Пример: 
+
+# SELECT *
+# FROM companies
+# WHERE EXISTS (
+#     SELECT *
+#     FROM users
+#     WHERE users.company_id = companies.id - «Для каждой компании проверь, есть ли пользователь, у которого company_id совпадает с id этой компании».
+# );
+
+
+# Запрос говорит - "Покажи компании, для которых существует хотя бы один пользователь."
+
+
+
+
+# EXISTS - это проверка наличия хотя бы 1 строки. Ему будет всё равно, СКОЛЬКО нашлось. Главное, что есть хотя бы 1 строка
+
+
+# NOT EXISTS - это противоположность EXISTS, то есть означает - "Не существует нм одной подходящей строки"
+
+
+# Пример: 
+
+# SELECT *
+# FROM companies
+# WHERE NOT EXISTS (
+#     SELECT *
+#     FROM users
+#     WHERE users.company_id = companies.id
+# )
+
+
+
+# IN и EXISTS очень похожи, но не всем.
+
+# IN - "находиться ли это значение среди результатов?" - WHERE company_id IN (...)
+
+# EXISTS - "существует ли хотя бы ОДНА подходящая строка?" - WHERE EXISTS (...)
+
+
+
+
+# `EXISTS` проверяет: **существует ли хотя бы одна подходящая строка**.
+
+# ### 1. Есть заказ за 5000
+
+# ```sql
+# SELECT *
+# FROM users
+# WHERE EXISTS (
+#     SELECT *
+#     FROM orders
+#     WHERE orders.user_id = users.id
+#     AND orders.price = 5000
+# );
+# ```
+
+# **Смысл:** у пользователя существует заказ с ценой 5000.
+
+# ---
+
+# ### 2. Есть заказ дешевле 3000
+
+# ```sql
+# SELECT *
+# FROM users
+# WHERE EXISTS (
+#     SELECT *
+#     FROM orders
+#     WHERE orders.user_id = users.id
+#     AND orders.price < 3000
+# );
+# ```
+
+# **Смысл:** существует хотя бы один заказ дешевле 3000.
+
+# ---
+
+# ### 3. Нет заказов
+
+# ```sql
+# SELECT *
+# FROM users
+# WHERE NOT EXISTS (
+#     SELECT *
+#     FROM orders
+#     WHERE orders.user_id = users.id
+# );
+# ```
+
+# **Смысл:** у пользователя нет ни одного заказа.
+
+# ---
+
+# ### 4. Пользователь из Moscow + заказ > 6000
+
+# ```sql
+# SELECT *
+# FROM users
+# WHERE users.city = 'Moscow'
+# AND EXISTS (
+#     SELECT *
+#     FROM orders
+#     WHERE orders.user_id = users.id
+#     AND orders.price > 6000
+# );
+# ```
+
+# **Смысл:** пользователь из Moscow и у него есть заказ дороже 6000.
+
+# ---
+
+# ### 5. Есть дешёвый заказ, но нет дорогого
+
+# ```sql
+# SELECT *
+# FROM users
+# WHERE EXISTS (
+#     SELECT *
+#     FROM orders
+#     WHERE orders.user_id = users.id
+#     AND orders.price < 3000
+# )
+# AND NOT EXISTS (
+#     SELECT *
+#     FROM orders
+#     WHERE orders.user_id = users.id
+#     AND orders.price > 10000
+# );
+# ```
+
+# **Смысл:** есть заказ < 3000, но нет заказа > 10000.
+
+# ---
+
+# ### 6. Цена от 4000 до 8000
+
+# ```sql
+# SELECT *
+# FROM users
+# WHERE EXISTS (
+#     SELECT *
+#     FROM orders
+#     WHERE orders.user_id = users.id
+#     AND orders.price BETWEEN 4000 AND 8000
+# );
+# ```
+
+# **Смысл:** существует заказ в диапазоне 4000–8000.
+
+# ---
+
+# ### 7. Товар содержит букву `o`
+
+# ```sql
+# SELECT *
+# FROM users
+# WHERE EXISTS (
+#     SELECT *
+#     FROM orders
+#     WHERE orders.user_id = users.id
+#     AND orders.product LIKE '%o%'
+# );
+# ```
+
+# **Смысл:** существует заказ, название товара которого содержит `o`.
+
+# ---
+
+# ### 8. Есть Keyboard И Mouse
+
+# ```sql
+# SELECT *
+# FROM users
+# WHERE EXISTS (
+#     SELECT *
+#     FROM orders
+#     WHERE orders.user_id = users.id
+#     AND orders.product = 'Keyboard'
+# )
+# AND EXISTS (
+#     SELECT *
+#     FROM orders
+#     WHERE orders.user_id = users.id
+#     AND orders.product = 'Mouse'
+# );
+# ```
+
+# **Смысл:** существует Keyboard и отдельно существует Mouse.
+
+# ---
+
+# ### 9. Заказ дороже средней цены ВСЕХ заказов
+
+# ```sql
+# SELECT *
+# FROM users
+# WHERE EXISTS (
+#     SELECT *
+#     FROM orders
+#     WHERE orders.user_id = users.id
+#     AND orders.price > (
+#         SELECT AVG(price)
+#         FROM orders
+#     )
+# );
+# ```
+
+# **Смысл:** есть заказ, цена которого выше общей средней цены.
+
+# ---
+
+# ### 10. Заказ дороже средней цены этого пользователя
+
+# ```sql
+# SELECT *
+# FROM users
+# WHERE EXISTS (
+#     SELECT *
+#     FROM orders
+#     WHERE orders.user_id = users.id
+#     AND orders.price > (
+#         SELECT AVG(orders2.price)
+#         FROM orders AS orders2
+#         WHERE orders2.user_id = users.id
+#     )
+# );
+# ```
+
+# **Смысл:** есть заказ, который дороже средней цены заказов этого пользователя.
+
+# ---
+
+# ## Главное
+
+# ```text
+# EXISTS      → существует хотя бы одна строка
+# NOT EXISTS  → не существует ни одной подходящей строки
+
+# EXISTS + EXISTS
+# → должны существовать два разных условия
+
+# EXISTS + NOT EXISTS
+# → одно условие должно существовать, другое — отсутствовать
+# ```
+
+# Главная связь:
+
+# ```sql
+# orders.user_id = users.id
+# ```
+
+# Она означает:
+
+# **«Проверяем заказы именно текущего пользователя».**
+
+
+
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
+
