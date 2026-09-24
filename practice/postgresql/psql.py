@@ -1064,3 +1064,916 @@
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 
+# Тип данных ENUM
+
+
+# -- Создать ENUM
+# CREATE TYPE status_enum AS ENUM (
+#     'new',
+#     'processing',
+#     'done'
+# );
+
+# -- Использовать
+# CREATE TABLE tasks (
+#     id SERIAL PRIMARY KEY,
+#     title VARCHAR(100),
+#     status status_enum
+# );
+
+# -- Добавить
+# INSERT INTO tasks(title, status)
+# VALUES ('Изучить PostgreSQL', 'new');
+
+# -- Изменить
+# UPDATE tasks
+# SET status = 'done'
+# WHERE id = 1;
+
+# -- Добавить новое значение
+# ALTER TYPE status_enum
+# ADD VALUE 'cancelled';
+
+# -- Удалить весь тип
+# DROP TYPE status_enum;
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
+# PostgreSQL — INNER JOIN и работа с несколькими таблицами
+
+## 1. INNER JOIN
+
+# `INNER JOIN` соединяет строки из двух таблиц по определённому условию.
+
+# ```sql
+# SELECT users.name, orders.product
+# FROM users
+# JOIN orders
+#     ON users.id = orders.user_id;
+# ```
+
+# Здесь:
+
+# ```text
+# users.id = orders.user_id
+# ```
+
+# SQL находит заказы, которые принадлежат конкретным пользователям.
+
+# `JOIN` без уточнения = `INNER JOIN`.
+
+# ```sql
+# JOIN orders
+# ```
+
+# то же самое, что:
+
+# ```sql
+# INNER JOIN orders
+# ```
+
+# ---
+
+# ## 2. ON
+
+# `ON` задаёт условие, по которому таблицы соединяются.
+
+# Например:
+
+# ```sql
+# SELECT *
+# FROM users
+# JOIN orders
+#     ON users.id = orders.user_id;
+# ```
+
+# Условие:
+
+# ```sql
+# ON users.id = orders.user_id
+# ```
+
+# означает:
+
+# > id пользователя должен совпадать с user_id заказа.
+
+# ---
+
+# ## 3. Соединение трёх таблиц
+
+# Можно соединять не только две, но и несколько таблиц.
+
+# Например:
+
+# ```text
+# users
+#   ↓
+# orders
+#   ↓
+# products
+# ```
+
+# Связи:
+
+# ```text
+# users.id = orders.user_id
+# orders.product_id = products.id
+# ```
+
+# SQL:
+
+# ```sql
+# SELECT u.name, p.name, p.price
+# FROM users AS u
+# JOIN orders AS o
+#     ON u.id = o.user_id
+# JOIN products AS p
+#     ON p.id = o.product_id;
+# ```
+
+# Здесь:
+
+# ```sql
+# users → orders
+# ```
+
+# связываются через:
+
+# ```sql
+# u.id = o.user_id
+# ```
+
+# А:
+
+# ```sql
+# orders → products
+# ```
+
+# через:
+
+# ```sql
+# o.product_id = p.id
+# ```
+
+# ### Важно запомнить
+
+# ```sql
+# ON u.id = o.user_id
+# ON p.id = o.product_id
+# ```
+
+# Не нужно путать `user_id` и `product_id`.
+
+# ---
+
+# ## 4. Алиасы AS
+
+# Алиасы позволяют дать таблицам короткие имена.
+
+# ```sql
+# FROM users AS u
+# JOIN orders AS o
+#     ON u.id = o.user_id
+# JOIN products AS p
+#     ON p.id = o.product_id
+# ```
+
+# Теперь:
+
+# ```text
+# u = users
+# o = orders
+# p = products
+# ```
+
+# Поэтому вместо:
+
+# ```sql
+# users.name
+# products.price
+# orders.user_id
+# ```
+
+# можно писать:
+
+# ```sql
+# u.name
+# p.price
+# o.user_id
+# ```
+
+# `AS` можно не писать:
+
+# ```sql
+# FROM users u
+# JOIN orders o
+# ```
+
+# ---
+
+# ## 5. SELECT после JOIN
+
+# Можно выбрать столбцы из разных таблиц.
+
+# ```sql
+# SELECT u.name, p.name, p.price
+# FROM users AS u
+# JOIN orders AS o
+#     ON u.id = o.user_id
+# JOIN products AS p
+#     ON p.id = o.product_id;
+# ```
+
+# Получим:
+
+# ```text
+# имя пользователя | товар | цена
+# ```
+
+# ---
+
+# ## 6. WHERE вместе с JOIN
+
+# `WHERE` фильтрует строки после соединения таблиц.
+
+# Например, вывести товары дороже 4000:
+
+# ```sql
+# SELECT u.name, p.name, p.price
+# FROM users AS u
+# JOIN orders AS o
+#     ON u.id = o.user_id
+# JOIN products AS p
+#     ON p.id = o.product_id
+# WHERE p.price > 4000;
+# ```
+
+# Можно использовать несколько условий:
+
+# ```sql
+# WHERE p.price > 3000
+# AND p.category = 'Audio';
+# ```
+
+# ---
+
+# ## 7. IN
+
+# `IN` позволяет проверить значение на принадлежность списку.
+
+# Вместо:
+
+# ```sql
+# WHERE u.name = 'Alex'
+# OR u.name = 'Mike'
+# OR u.name = 'Anna'
+# ```
+
+# можно:
+
+# ```sql
+# WHERE u.name IN ('Alex', 'Mike', 'Anna');
+# ```
+
+# То же самое работает с категориями:
+
+# ```sql
+# WHERE p.category IN ('Devices', 'Audio');
+# ```
+
+# ---
+
+# ## 8. BETWEEN
+
+# Проверяет, находится ли значение в определённом диапазоне.
+
+# ```sql
+# WHERE p.price BETWEEN 2000 AND 7000;
+# ```
+
+# Это означает:
+
+# ```text
+# price >= 2000
+# AND
+# price <= 7000
+# ```
+
+# Границы включаются.
+
+# ---
+
+# ## 9. !=
+
+# `!=` означает «не равно».
+
+# ```sql
+# WHERE u.name != 'Egor';
+# ```
+
+# То есть показать всех пользователей, кроме Egor.
+
+# Также можно:
+
+# ```sql
+# WHERE p.category != 'Accessories';
+# ```
+
+# ---
+
+# ## 10. ORDER BY
+
+# `ORDER BY` сортирует результат.
+
+# По возрастанию:
+
+# ```sql
+# ORDER BY p.price ASC;
+# ```
+
+# `ASC` можно не писать:
+
+# ```sql
+# ORDER BY p.price;
+# ```
+
+# По убыванию:
+
+# ```sql
+# ORDER BY p.price DESC;
+# ```
+
+# Например:
+
+# ```sql
+# SELECT *
+# FROM products
+# ORDER BY price DESC;
+# ```
+
+# Получим сначала самые дорогие товары.
+
+# ---
+
+# ## 11. Сортировка по нескольким столбцам
+
+# Можно сортировать сразу по нескольким столбцам:
+
+# ```sql
+# ORDER BY u.name ASC, p.price DESC;
+# ```
+
+# Сначала сортируем пользователей по имени:
+
+# ```text
+# Alex
+# Anna
+# Bob
+# Mike
+# ```
+
+# А если у одного пользователя несколько товаров, внутри его товаров сортируем по цене от большей к меньшей.
+
+# ---
+
+# # GROUP BY и ORDER BY — разница
+
+# Это разные конструкции.
+
+# ```text
+# GROUP BY → группирует строки
+# ORDER BY → сортирует строки
+# ```
+
+# ## GROUP BY
+
+# `GROUP BY` объединяет строки с одинаковым значением в группы.
+
+# Например:
+
+# ```sql
+# SELECT category, COUNT(*)
+# FROM products
+# GROUP BY category;
+# ```
+
+# Получим:
+
+# ```text
+# Devices     3
+# Audio       2
+# Accessories 1
+# ```
+
+# Здесь товары были объединены по категории, а `COUNT(*)` посчитал количество товаров в каждой группе.
+
+# `GROUP BY` часто используется вместе с агрегатными функциями:
+
+# ```sql
+# COUNT()
+# SUM()
+# AVG()
+# MIN()
+# MAX()
+# ```
+
+# ---
+
+# ## ORDER BY
+
+# `ORDER BY` не создаёт группы.
+
+# Он просто меняет порядок строк:
+
+# ```sql
+# SELECT *
+# FROM products
+# ORDER BY price DESC;
+# ```
+
+# Количество строк остаётся тем же.
+
+# ---
+
+# ## GROUP BY + ORDER BY вместе
+
+# Их можно использовать вместе:
+
+# ```sql
+# SELECT category, COUNT(*) AS amount
+# FROM products
+# GROUP BY category
+# ORDER BY amount DESC;
+# ```
+
+# Порядок действий:
+
+# ```text
+# 1. GROUP BY → группируем товары по категориям
+# 2. COUNT(*) → считаем товары в каждой категории
+# 3. ORDER BY → сортируем получившиеся группы
+# ```
+
+# ### Главное различие
+
+# ```text
+# GROUP BY → ЧТО ОБЪЕДИНИТЬ В ГРУППЫ
+
+# ORDER BY → В КАКОМ ПОРЯДКЕ ПОКАЗАТЬ РЕЗУЛЬТАТ
+# ```
+
+# ---
+
+# # Общая конструкция JOIN
+
+# При работе с несколькими таблицами часто получается такая структура:
+
+# ```sql
+# SELECT ...
+# FROM users AS u
+# JOIN orders AS o
+#     ON u.id = o.user_id
+# JOIN products AS p
+#     ON p.id = o.product_id
+# WHERE ...
+# GROUP BY ...
+# HAVING ...
+# ORDER BY ...;
+# ```
+
+# Пока тебе особенно важно запомнить:
+
+# ```text
+# SELECT  → что вывести
+# FROM    → откуда начать
+# JOIN    → какую таблицу присоединить
+# ON      → по какому условию соединить
+# WHERE   → какие строки оставить
+# GROUP BY → какие строки объединить в группы
+# HAVING  → какие группы оставить
+# ORDER BY → как отсортировать результат
+# ```
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
+# PostgreSQL — OUTER JOIN и CROSS JOIN
+
+## 1. INNER JOIN
+
+# Показывает **только строки, для которых найдено совпадение**.
+
+# ```sql
+# SELECT u.name, o.id
+# FROM users AS u
+# INNER JOIN orders AS o
+#     ON u.id = o.user_id;
+# ```
+
+# Если у пользователя нет заказа — он не попадёт в результат.
+
+# ```text
+# INNER JOIN → только совпадения
+# ```
+
+# ---
+
+# ## 2. LEFT JOIN
+
+# Показывает **все строки из левой таблицы** + совпадения из правой.
+
+# ```sql
+# SELECT u.name, o.id
+# FROM users AS u
+# LEFT JOIN orders AS o
+#     ON u.id = o.user_id;
+# ```
+
+# Если заказа нет:
+
+# ```text
+# Mike | NULL
+# ```
+
+# То есть:
+
+# ```text
+# LEFT JOIN → все строки слева + совпадения справа
+# ```
+
+# ### Пример
+
+# ```sql
+# SELECT u.name, p.name, p.price
+# FROM users AS u
+# LEFT JOIN orders AS o
+#     ON u.id = o.user_id
+# LEFT JOIN products AS p
+#     ON o.product_id = p.id;
+# ```
+
+# Получим всех пользователей, даже тех, кто ничего не заказывал.
+
+# ---
+
+# ## 3. LEFT JOIN + IS NULL
+
+# Очень полезная конструкция для поиска строк, **у которых нет соответствия**.
+
+# Например, найти пользователей без заказов:
+
+# ```sql
+# SELECT u.name
+# FROM users AS u
+# LEFT JOIN orders AS o
+#     ON u.id = o.user_id
+# WHERE o.id IS NULL;
+# ```
+
+# Логика:
+
+# ```text
+# LEFT JOIN
+# ↓
+# пользователь без заказа
+# ↓
+# данные orders = NULL
+# ↓
+# WHERE o.id IS NULL
+# ↓
+# получаем пользователей без заказов
+# ```
+
+# ### Важно
+
+# Начинай `FROM` с того, **кого хочешь найти**.
+
+# Найти пользователей без заказов:
+
+# ```sql
+# FROM users
+# LEFT JOIN orders
+# ```
+
+# Найти товары без заказов:
+
+# ```sql
+# FROM products
+# LEFT JOIN orders
+# ```
+
+# ### Пример — товары без заказов
+
+# ```sql
+# SELECT p.name
+# FROM products AS p
+# LEFT JOIN orders AS o
+#     ON p.id = o.product_id
+# WHERE o.id IS NULL;
+# ```
+
+# ---
+
+# ## 4. LEFT JOIN + IS NOT NULL
+
+# Если использовать `IS NOT NULL`, то мы оставим строки, **для которых соответствие найдено**.
+
+# ```sql
+# SELECT u.name, o.id
+# FROM users AS u
+# LEFT JOIN orders AS o
+#     ON u.id = o.user_id
+# WHERE o.id IS NOT NULL;
+# ```
+
+# Получим только пользователей, у которых есть заказы.
+
+# Можно запомнить:
+
+# ```text
+# LEFT JOIN + IS NULL
+# → нет соответствия
+
+# LEFT JOIN + IS NOT NULL
+# → есть соответствие
+# ```
+
+# ---
+
+# ## 5. RIGHT JOIN
+
+# Работает наоборот относительно `LEFT JOIN`.
+
+# Показывает **все строки из правой таблицы** + совпадения из левой.
+
+# ```sql
+# SELECT u.name, o.id
+# FROM users AS u
+# RIGHT JOIN orders AS o
+#     ON u.id = o.user_id;
+# ```
+
+# Главной здесь является правая таблица:
+
+# ```text
+# users RIGHT JOIN orders
+#               ↑
+#         сохраняем все orders
+# ```
+
+# Можно запомнить:
+
+# ```text
+# LEFT JOIN  → сохраняет левую таблицу
+# RIGHT JOIN → сохраняет правую таблицу
+# ```
+
+# ---
+
+# ## 6. FULL JOIN
+
+# Показывает **все строки обеих таблиц**.
+
+# Совпадения объединяются, а там, где совпадения нет, появляется `NULL`.
+
+# ```sql
+# SELECT u.name, o.id
+# FROM users AS u
+# FULL JOIN orders AS o
+#     ON u.id = o.user_id;
+# ```
+
+# То есть:
+
+# ```text
+# FULL JOIN
+# → все слева
+# + все справа
+# + совпадения
+# ```
+
+# ---
+
+# ## 7. CROSS JOIN
+
+# Создаёт **все возможные комбинации** строк двух таблиц.
+
+# ```sql
+# SELECT u.name, p.name
+# FROM users AS u
+# CROSS JOIN products AS p;
+# ```
+
+# Если:
+
+# ```text
+# users = 4 строки
+# products = 4 строки
+# ```
+
+# то:
+
+# ```text
+# 4 × 4 = 16 строк
+# ```
+
+# Например:
+
+# ```text
+# Alex | Phone
+# Alex | Mouse
+# Alex | Keyboard
+# Alex | Monitor
+
+# Bob  | Phone
+# Bob  | Mouse
+# Bob  | Keyboard
+# Bob  | Monitor
+# ...
+# ```
+
+# `CROSS JOIN` **не использует `ON`**.
+
+# ---
+
+# ## 8. CROSS JOIN с несколькими таблицами
+
+# Можно написать:
+
+# ```sql
+# SELECT u.name, o.id, p.name
+# FROM users AS u
+# CROSS JOIN orders AS o
+# CROSS JOIN products AS p;
+# ```
+
+# Тогда количество комбинаций:
+
+# ```text
+# users × orders × products
+# ```
+
+# Например:
+
+# ```text
+# 4 × 3 × 4 = 48 строк
+# ```
+
+# Но если задача просто:
+
+# ```text
+# пользователь × товар
+# ```
+
+# то `orders` здесь не нужна:
+
+# ```sql
+# SELECT u.name, p.name
+# FROM users AS u
+# CROSS JOIN products AS p;
+# ```
+
+# ---
+
+# # 9. Главное отличие JOIN
+
+# ```text
+# INNER JOIN
+# → только совпадения
+
+# LEFT JOIN
+# → все строки слева + совпадения справа
+
+# RIGHT JOIN
+# → все строки справа + совпадения слева
+
+# FULL JOIN
+# → все строки обеих таблиц
+
+# CROSS JOIN
+# → все возможные комбинации
+# ```
+
+# ---
+
+# # 10. LEFT JOIN или CROSS JOIN?
+
+# ### Нужно:
+
+# > Показать всех пользователей и их заказы.
+
+# Используем:
+
+# ```sql
+# LEFT JOIN
+# ```
+
+# Потому что нам нужно установить связь:
+
+# ```text
+# users.id = orders.user_id
+# ```
+
+# ---
+
+# ### Нужно:
+
+# > Получить каждого пользователя с каждым товаром.
+
+# Используем:
+
+# ```sql
+# CROSS JOIN
+# ```
+
+# Потому что нужны **все комбинации**, а не реальные связи между таблицами.
+
+# ---
+
+# # 11. Полезная схема
+
+# ```text
+# INNER JOIN
+#        ↓
+# только совпадения
+
+
+# LEFT JOIN
+#        ↓
+# все слева
+# + совпадения справа
+
+
+# RIGHT JOIN
+#        ↓
+# совпадения слева
+# + все справа
+
+
+# FULL JOIN
+#        ↓
+# всё слева
+# + всё справа
+
+
+# CROSS JOIN
+#        ↓
+# каждый × каждый
+# ```
+
+# ---
+
+# # 12. Главное, что нужно запомнить
+
+# ### Если нужно найти тех, у кого чего-то нет:
+
+# ```sql
+# SELECT ...
+# FROM основная_таблица AS a
+# LEFT JOIN другая_таблица AS b
+#     ON ...
+# WHERE b.id IS NULL;
+# ```
+
+# Например:
+
+# ```sql
+# SELECT p.name
+# FROM products AS p
+# LEFT JOIN orders AS o
+#     ON p.id = o.product_id
+# WHERE o.id IS NULL;
+# ```
+
+# → товары, которые никто не заказывал.
+
+# ### Если нужно найти тех, у кого что-то есть:
+
+# ```sql
+# WHERE b.id IS NOT NULL;
+# ```
+
+# ### Если нужны все возможные комбинации:
+
+# ```sql
+# CROSS JOIN
+# ```
+
+# ### Главное правило:
+
+# ```text
+# LEFT JOIN + IS NULL
+# → найти записи БЕЗ соответствия
+# ```
+
+# Это один из самых полезных приёмов при работе с JOIN.
+
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
+
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
