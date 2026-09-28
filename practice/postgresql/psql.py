@@ -1973,6 +1973,412 @@
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 
+# UNION
+# ↓
+# объединяет результаты SELECT
+
+# UNION
+# → убирает дубликаты
+
+# UNION ALL
+# → оставляет дубликаты
+
+# JOIN
+# → соединяет столбцы/строки связанных таблиц
+
+# UNION
+# → складывает результаты запросов друг под другом
+
+
+
+
+# Шаблон:
+
+# SELECT column1, column2
+# FROM table1
+
+# UNION
+
+# SELECT column1, column2
+# FROM table2;
+
+
+
+# Количество столбцов должно совпадать
+# Типы соответствующих столбцов должны быть совместимы
+
+
+
+# JOIN — "соедини эти таблицы".
+# UNION — "возьми результаты этих запросов и собери в один результат".
+
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
+# UNION
+# → объединяет результаты
+
+# UNION ALL
+# → объединяет результаты + сохраняет дубликаты
+
+# EXCEPT
+# → берёт первый результат и убирает строки,
+#   которые есть во втором
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
+# INTERSECT в PostgreSQL
+
+## 1. Что такое INTERSECT
+
+# `INTERSECT` возвращает только те строки, которые присутствуют **в обоих результатах SELECT**.
+
+# Проще:
+
+# ```text
+# A INTERSECT B
+# ```
+
+# → что есть и в A, и в B.
+
+# ### Пример
+
+# ```sql
+# SELECT name
+# FROM customers
+
+# INTERSECT
+
+# SELECT name
+# FROM employees;
+# ```
+
+# Если:
+
+# ```text
+# customers:  Alex, Bob, Mike, Anna
+# employees:  Bob, Anna, Sergey
+# ```
+
+# Результат:
+
+# ```text
+# Bob
+# Anna
+# ```
+
+# ---
+
+# ## 2. Синтаксис
+
+# ```sql
+# SELECT столбцы
+# FROM таблица1
+
+# INTERSECT
+
+# SELECT столбцы
+# FROM таблица2;
+# ```
+
+# ---
+
+# ## 3. Главное правило
+
+# Оба `SELECT` должны возвращать:
+
+# * одинаковое количество столбцов;
+# * совместимые типы данных.
+
+# ✅ Правильно:
+
+# ```sql
+# SELECT name, city
+# FROM customers
+
+# INTERSECT
+
+# SELECT name, city
+# FROM employees;
+# ```
+
+# ❌ Неправильно:
+
+# ```sql
+# SELECT name, city
+# FROM customers
+
+# INTERSECT
+
+# SELECT name
+# FROM employees;
+# ```
+
+# Слева 2 столбца, справа 1.
+
+# ---
+
+# ## 4. INTERSECT убирает дубликаты
+
+# Обычный `INTERSECT` возвращает уникальные строки.
+
+# ```sql
+# SELECT city
+# FROM customers
+
+# INTERSECT
+
+# SELECT city
+# FROM employees;
+# ```
+
+# Если `Moscow` встречается несколько раз, в результате она будет только один раз.
+
+# ---
+
+# ## 5. INTERSECT ALL
+
+# `INTERSECT ALL` сохраняет повторения.
+
+# ```sql
+# SELECT name
+# FROM customers
+
+# INTERSECT ALL
+
+# SELECT name
+# FROM employees;
+# ```
+
+# В обычных задачах чаще используется обычный `INTERSECT`.
+
+# ---
+
+# # 6. Сравнение UNION, EXCEPT и INTERSECT
+
+# ### UNION
+
+# Объединяет результаты.
+
+# ```sql
+# SELECT name FROM customers
+# UNION
+# SELECT name FROM employees;
+# ```
+
+# ```text
+# A + B
+# ```
+
+# → всё из обоих результатов, без дубликатов.
+
+# ---
+
+# ### EXCEPT
+
+# Вычитает второй результат из первого.
+
+# ```sql
+# SELECT name FROM customers
+# EXCEPT
+# SELECT name FROM employees;
+# ```
+
+# ```text
+# A - B
+# ```
+
+# → есть в A, но нет в B.
+
+# **Порядок важен:**
+
+# ```sql
+# A EXCEPT B
+# ```
+
+# и
+
+# ```sql
+# B EXCEPT A
+# ```
+
+# — разные результаты.
+
+# ---
+
+# ### INTERSECT
+
+# Находит пересечение.
+
+# ```sql
+# SELECT name FROM customers
+# INTERSECT
+# SELECT name FROM employees;
+# ```
+
+# ```text
+# A ∩ B
+# ```
+
+# → есть и в A, и в B.
+
+# ---
+
+# # 7. INTERSECT с несколькими столбцами
+
+# Сравнивается **вся строка**, то есть комбинация столбцов.
+
+# ```sql
+# SELECT name, city
+# FROM customers
+
+# INTERSECT
+
+# SELECT name, city
+# FROM employees;
+# ```
+
+# Например:
+
+# ```text
+# Bob | Kazan
+# Anna | Perm
+# ```
+
+# Если имя совпадает, но город разный:
+
+# ```text
+# Bob | Moscow
+# Bob | Kazan
+# ```
+
+# такие строки не считаются одинаковыми.
+
+# ---
+
+# # 8. INTERSECT с JOIN
+
+# `INTERSECT` можно использовать внутри подзапроса, чтобы сначала получить нужных людей.
+
+# Например, найти покупателей, которые одновременно являются сотрудниками:
+
+# ```sql
+# SELECT c.name, COUNT(o.product)
+# FROM customers AS c
+# JOIN orders AS o
+#     ON o.customer_id = c.id
+# WHERE c.name IN (
+#     SELECT name
+#     FROM customers
+
+#     INTERSECT
+
+#     SELECT name
+#     FROM employees
+# )
+# GROUP BY c.name;
+# ```
+
+# Здесь:
+
+# ```text
+# INTERSECT
+#     ↓
+# получаем общих людей
+
+# JOIN
+#     ↓
+# подключаем их заказы
+
+# GROUP BY
+#     ↓
+# группируем по имени
+
+# COUNT
+#     ↓
+# считаем заказы
+# ```
+
+# ---
+
+# # 9. INTERSECT + GROUP BY + HAVING
+
+# Можно фильтровать группы:
+
+# ```sql
+# SELECT c.name, COUNT(o.product), SUM(o.price)
+# FROM customers AS c
+# JOIN orders AS o
+#     ON o.customer_id = c.id
+# WHERE c.name IN (
+#     SELECT name
+#     FROM customers
+
+#     INTERSECT
+
+#     SELECT name
+#     FROM employees
+# )
+# GROUP BY c.name
+# HAVING COUNT(o.product) > 1
+#    AND SUM(o.price) > 5000;
+# ```
+
+# Получаем покупателей, которые:
+
+# * являются сотрудниками;
+# * сделали больше 1 заказа;
+# * потратили больше 5000.
+
+# ---
+
+# # 10. Главное правило для запоминания
+
+# ```text
+# UNION
+# → объединить
+
+# EXCEPT
+# → вычесть
+
+# INTERSECT
+# → найти общее
+# ```
+
+# Можно представить как множества:
+
+# ```text
+# UNION       → A + B
+# EXCEPT      → A - B
+# INTERSECT   → A ∩ B
+# ```
+
+# ### Коротко:
+
+# ```sql
+# A UNION B
+# ```
+
+# → всё из A и B
+
+# ```sql
+# A EXCEPT B
+# ```
+
+# → только A, без B
+
+# ```sql
+# A INTERSECT B
+# ```
+
+# → только общее для A и B
+
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
 
 
 # -----------------------------------------------------------------------
