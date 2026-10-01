@@ -1,0 +1,1361 @@
+# HTTP-запросы в Python — Requests
+
+## 1. Что такое HTTP
+
+HTTP (HyperText Transfer Protocol) — протокол, по которому клиент и сервер обмениваются данными.
+
+```text
+Клиент
+   ↓ HTTP Request
+Сервер
+   ↓ HTTP Response
+Клиент
+```
+
+Клиентом может быть:
+
+* браузер
+* Python-программа
+* мобильное приложение
+* Postman
+
+Сервер получает запрос, обрабатывает его и возвращает ответ.
+
+---
+
+# 2. Requests
+
+`requests` — Python-библиотека для отправки HTTP-запросов.
+
+Установка:
+
+```bash
+pip install requests
+```
+
+Импорт:
+
+```python
+import requests
+```
+
+---
+
+# 3. GET
+
+`GET` используется, чтобы получить данные.
+
+```python
+import requests
+
+response = requests.get(
+    "https://jsonplaceholder.typicode.com/users"
+)
+
+print(response.status_code)
+```
+
+Можно получить конкретного пользователя:
+
+```python
+response = requests.get(
+    "https://jsonplaceholder.typicode.com/users/1"
+)
+```
+
+`/1` — пользователь с ID 1.
+
+---
+
+# 4. Response
+
+После запроса мы получаем объект `Response`.
+
+```python
+response = requests.get(url)
+```
+
+## status_code
+
+Показывает статус HTTP-ответа.
+
+```python
+print(response.status_code)
+```
+
+Основные:
+
+```text
+200 → успешно
+201 → ресурс создан
+400 → неправильный запрос
+401 → нужна авторизация
+403 → доступ запрещён
+404 → ресурс не найден
+500 → ошибка сервера
+```
+
+---
+
+## text
+
+Получить ответ как текст:
+
+```python
+print(response.text)
+```
+
+---
+
+## json()
+
+Если сервер вернул JSON:
+
+```python
+data = response.json()
+
+print(data)
+```
+
+JSON превращается в Python-объект.
+
+Например:
+
+```json
+{
+    "name": "Alex",
+    "age": 20
+}
+```
+
+После `response.json()`:
+
+```python
+{
+    "name": "Alex",
+    "age": 20
+}
+```
+
+С ним можно работать как с обычным словарём:
+
+```python
+data = response.json()
+
+print(data["name"])
+print(data["age"])
+```
+
+---
+
+# 5. POST
+
+`POST` используется для отправки/создания данных.
+
+```python
+user = {
+    "name": "Alex",
+    "email": "alex@example.com"
+}
+
+response = requests.post(
+    "https://jsonplaceholder.typicode.com/users",
+    json=user
+)
+
+print(response.status_code)
+print(response.json())
+```
+
+`json=user` означает:
+
+> Отправить словарь `user` как JSON в теле HTTP-запроса.
+
+---
+
+# 6. PATCH
+
+`PATCH` используется для изменения части существующего ресурса.
+
+Например, изменить имя пользователя №2:
+
+```python
+user = {
+    "name": "Bob"
+}
+
+response = requests.patch(
+    "https://jsonplaceholder.typicode.com/users/2",
+    json=user
+)
+
+print(response.status_code)
+print(response.json())
+```
+
+Мы не отправляем всего пользователя, а только то поле, которое хотим изменить.
+
+```text
+PATCH /users/2
+
+{
+    "name": "Bob"
+}
+```
+
+---
+
+# 7. DELETE
+
+`DELETE` используется для удаления ресурса.
+
+```python
+response = requests.delete(
+    "https://jsonplaceholder.typicode.com/users/2"
+)
+
+print(response.status_code)
+```
+
+---
+
+# 8. Основные HTTP-методы
+
+```text
+GET
+↓
+получить данные
+
+POST
+↓
+создать / отправить данные
+
+PUT
+↓
+полностью заменить ресурс
+
+PATCH
+↓
+изменить часть ресурса
+
+DELETE
+↓
+удалить ресурс
+```
+
+
+---
+
+# 9. Request и Response
+
+Каждый HTTP-запрос можно представить так:
+
+```text
+REQUEST
+    ↓
+Метод
+URL
+Headers
+Body
+    ↓
+SERVER
+    ↓
+RESPONSE
+    ↓
+Status Code
+Headers
+Body
+```
+
+Например:
+
+```text
+POST /users
+
+{
+    "name": "Alex"
+}
+```
+
+Сервер может ответить:
+
+```text
+201 Created
+
+{
+    "id": 10,
+    "name": "Alex"
+}
+```
+
+---
+
+# 10. URL
+
+URL указывает, с каким ресурсом мы работаем.
+
+```text
+https://example.com/users/15
+```
+
+Здесь:
+
+```text
+https://
+↓
+протокол
+
+example.com
+↓
+сервер / домен
+
+/users/15
+↓
+путь к ресурсу
+```
+
+---
+
+# 11. Path Parameter
+
+Часть пути может указывать на конкретный ресурс.
+
+```text
+/users/15
+```
+
+Здесь:
+
+```text
+15
+↓
+ID пользователя
+```
+
+Например:
+
+```python
+response = requests.get(
+    "https://jsonplaceholder.typicode.com/users/15"
+)
+```
+
+Получаем пользователя №15.
+
+---
+
+# 12. Query Parameters
+
+Query-параметры находятся после `?`.
+
+```text
+/users?name=Alex
+```
+
+Здесь:
+
+```text
+/users
+↓
+путь
+
+name=Alex
+↓
+query parameter
+```
+
+В `requests` лучше передавать их через `params`:
+
+```python
+params = {
+    "name": "Alex"
+}
+
+response = requests.get(
+    "https://example.com/users",
+    params=params
+)
+```
+
+Можно передать несколько параметров:
+
+```python
+params = {
+    "name": "Alex",
+    "age": 20
+}
+
+response = requests.get(
+    "https://example.com/users",
+    params=params
+)
+```
+
+Получится URL примерно такого вида:
+
+```text
+/users?name=Alex&age=20
+```
+
+Query-параметры часто используются для:
+
+```text
+поиска
+фильтрации
+сортировки
+пагинации
+```
+
+---
+
+# 13. Headers
+
+Headers — дополнительная информация о HTTP-запросе.
+
+Например:
+
+```python
+headers = {
+    "Accept": "application/json"
+}
+
+response = requests.get(
+    "https://example.com/users",
+    headers=headers
+)
+```
+
+Другой пример:
+
+```python
+headers = {
+    "Authorization": "Bearer TOKEN"
+}
+```
+
+Headers часто используются для:
+
+```text
+типов данных
+авторизации
+токенов
+дополнительной информации о клиенте
+```
+
+---
+
+# 14. Body
+
+Body — данные, которые мы отправляем внутри запроса.
+
+Например:
+
+```python
+user = {
+    "name": "Alex",
+    "email": "alex@example.com"
+}
+
+response = requests.post(
+    "https://example.com/users",
+    json=user
+)
+```
+
+Здесь `user` находится в теле запроса.
+
+Упрощённо:
+
+```text
+POST /users
+
+Body:
+{
+    "name": "Alex",
+    "email": "alex@example.com"
+}
+```
+
+---
+
+# 15. Общая схема
+
+```text
+                 HTTP
+                  │
+                  ▼
+              REQUEST
+                  │
+        ┌─────────┼─────────┐
+        ↓         ↓         ↓
+      Method     URL      Headers
+        │                   │
+        └─────────┬─────────┘
+                  ↓
+                 Body
+                  │
+                  ▼
+                SERVER
+                  │
+                  ▼
+              RESPONSE
+                  │
+        ┌─────────┼─────────┐
+        ↓         ↓         ↓
+   status_code  headers    body
+                             │
+                             ↓
+                         response.json()
+```
+
+
+
+
+
+# Query Parameters (`params`) в Requests
+
+## 1. Что такое Query Parameters
+
+Query Parameters — это параметры, которые передаются в URL после `?`.
+
+```text
+https://example.com/users?id=1
+```
+
+Здесь:
+
+```text
+id=1
+```
+
+— Query Parameter.
+
+Если параметров несколько, они разделяются через `&`:
+
+```text
+https://example.com/users?id=1&name=Alex
+```
+
+---
+
+## 2. Зачем нужны Query Parameters
+
+Чаще всего для:
+
+* поиска
+* фильтрации
+* сортировки
+* пагинации
+* передачи дополнительных условий запроса
+
+Например:
+
+```text
+/users?name=Alex
+```
+
+Найти пользователя по имени.
+
+```text
+/products?category=phones
+```
+
+Получить товары определённой категории.
+
+```text
+/posts?userId=1
+```
+
+Получить посты пользователя с `id=1`.
+
+---
+
+## 3. `params` в Requests
+
+В Python не обязательно вручную писать параметры в URL.
+
+Можно использовать `params`:
+
+```python
+import requests
+
+params = {
+    'id': 1
+}
+
+response = requests.get(
+    'https://jsonplaceholder.typicode.com/users',
+    params=params
+)
+
+print(response.url)
+```
+
+Requests сам сформирует URL:
+
+```text
+https://jsonplaceholder.typicode.com/users?id=1
+```
+
+---
+
+## 4. Несколько параметров
+
+```python
+params = {
+    'userId': 1,
+    'id': 5
+}
+
+response = requests.get(
+    'https://jsonplaceholder.typicode.com/posts',
+    params=params
+)
+
+print(response.url)
+```
+
+Получится примерно:
+
+```text
+https://jsonplaceholder.typicode.com/posts?userId=1&id=5
+```
+
+---
+
+## 5. Строковые значения
+
+```python
+params = {
+    'name': 'Leanne Graham'
+}
+
+response = requests.get(
+    'https://example.com/users',
+    params=params
+)
+```
+
+Не нужно самостоятельно кодировать пробел:
+
+```text
+Leanne%20Graham
+```
+
+Requests сделает это самостоятельно.
+
+---
+
+## 6. Как посмотреть получившийся URL
+
+Используй:
+
+```python
+print(response.url)
+```
+
+Например:
+
+```python
+params = {
+    'userId': 2,
+    'id': 10
+}
+
+response = requests.get(
+    'https://jsonplaceholder.typicode.com/posts',
+    params=params
+)
+
+print(response.url)
+```
+
+---
+
+## 7. Path Parameter и Query Parameter — не одно и то же
+
+### Path Parameter
+
+Параметр находится непосредственно в пути:
+
+```text
+/users/15
+```
+
+Здесь `15` — часть пути.
+
+В Requests:
+
+```python
+response = requests.get(
+    'https://example.com/users/15'
+)
+```
+
+### Query Parameter
+
+Параметр находится после `?`:
+
+```text
+/users?id=15
+```
+
+В Requests:
+
+```python
+params = {
+    'id': 15
+}
+
+response = requests.get(
+    'https://example.com/users',
+    params=params
+)
+```
+
+Запомни:
+
+```text
+/users/15       → Path
+/users?id=15    → Query Parameter
+```
+
+---
+
+## 8. Главное правило
+
+Не пиши Query Parameters вручную в URL:
+
+```python
+# Можно, но при работе с Requests лучше так не делать
+requests.get(
+    'https://example.com/users?id=1&name=Alex'
+)
+```
+
+Используй `params`:
+
+```python
+params = {
+    'id': 1,
+    'name': 'Alex'
+}
+
+response = requests.get(
+    'https://example.com/users',
+    params=params
+)
+```
+
+Requests сам соберёт правильный URL.
+
+---
+
+## 9. Схема
+
+```text
+params
+   ↓
+Query Parameters
+   ↓
+URL
+   ↓
+GET-запрос
+   ↓
+Сервер
+   ↓
+Response
+```
+
+Пример:
+
+```python
+params = {
+    'userId': 1
+}
+
+response = requests.get(
+    'https://jsonplaceholder.typicode.com/posts',
+    params=params
+)
+```
+
+Получается:
+
+```text
+/posts?userId=1
+```
+
+---
+
+## Коротко
+
+```text
+params = {...}
+```
+
+→ передаёт Query Parameters.
+
+```python
+params = {
+    'id': 1
+}
+```
+
+→
+
+```text
+?id=1
+```
+
+```python
+params = {
+    'userId': 1,
+    'id': 5
+}
+```
+
+→
+
+```text
+?userId=1&id=5
+```
+
+Главное:
+
+**`params` нужен для передачи Query Parameters в URL.**
+
+
+
+
+
+
+# HTTP Headers в Python requests
+
+## 1. Что такое Headers
+
+**Headers (заголовки)** — дополнительная информация, которую клиент отправляет серверу вместе с HTTP-запросом.
+
+Например:
+
+```python
+headers = {
+    "User-Agent": "MyPythonApp",
+    "Accept": "application/json"
+}
+```
+
+Передаём Headers в запрос:
+
+```python
+import requests
+
+headers = {
+    "User-Agent": "MyPythonApp",
+    "Accept": "application/json"
+}
+
+response = requests.get(
+    "https://jsonplaceholder.typicode.com/users",
+    headers=headers
+)
+
+print(response.status_code)
+print(response.json())
+```
+
+---
+
+## 2. User-Agent
+
+`User-Agent` сообщает серверу, **какой клиент отправляет запрос**.
+
+```python
+headers = {
+    "User-Agent": "PythonStudent"
+}
+```
+
+Здесь `PythonStudent` — просто значение, которое мы указали сами.
+
+Например:
+
+```python
+"User-Agent": "MyPythonApp"
+```
+
+---
+
+## 3. Accept
+
+`Accept` сообщает серверу, **какой формат ответа мы предпочитаем получить**.
+
+```python
+headers = {
+    "Accept": "application/json"
+}
+```
+
+То есть:
+
+```text
+"Я хочу получить JSON."
+```
+
+Можно использовать вместе с `User-Agent`:
+
+```python
+headers = {
+    "User-Agent": "MyPythonApp",
+    "Accept": "application/json"
+}
+```
+
+---
+
+## 4. Content-Type
+
+`Content-Type` сообщает, **в каком формате находятся отправляемые данные**.
+
+Например:
+
+```python
+headers = {
+    "Content-Type": "application/json"
+}
+```
+
+Это означает:
+
+```text
+"Я отправляю данные в формате JSON."
+```
+
+Другие примеры:
+
+```text
+text/plain
+```
+
+→ обычный текст
+
+```text
+text/html
+```
+
+→ HTML
+
+```text
+application/json
+```
+
+→ JSON
+
+На практике `Content-Type` особенно важен при отправке данных на сервер, например в POST-запросах.
+
+---
+
+## 5. Headers запроса и Headers ответа
+
+### Наши Headers
+
+```python
+headers = {
+    "Accept": "application/json"
+}
+
+response = requests.get(
+    url,
+    headers=headers
+)
+```
+
+Это Headers, которые **мы отправляем серверу**.
+
+### Headers ответа
+
+```python
+print(response.headers)
+```
+
+Это Headers, которые **сервер отправил нам**.
+
+Можно получить конкретный Header:
+
+```python
+print(response.headers.get("Content-Type"))
+```
+
+Например, сервер может ответить:
+
+```text
+Content-Type: application/json; charset=utf-8
+```
+
+Это означает, что сервер отправил JSON.
+
+---
+
+## 6. `headers` и `response.headers` — разница
+
+```text
+headers
+↓
+Headers нашего запроса
+↓
+мы отправляем серверу
+
+
+response.headers
+↓
+Headers ответа
+↓
+сервер отправляет нам
+```
+
+---
+
+## 7. Headers + params
+
+`headers` и `params` можно использовать одновременно.
+
+```python
+params = {
+    "id": 3
+}
+
+headers = {
+    "User-Agent": "MyPythonApp",
+    "Accept": "application/json"
+}
+
+response = requests.get(
+    "https://jsonplaceholder.typicode.com/users",
+    params=params,
+    headers=headers
+)
+
+print(response.url)
+print(response.status_code)
+print(response.json())
+```
+
+Получится примерно:
+
+```text
+URL:
+https://jsonplaceholder.typicode.com/users?id=3
+
+Headers:
+User-Agent: MyPythonApp
+Accept: application/json
+```
+
+### Главное различие:
+
+```text
+params
+↓
+параметры URL
+"Что я хочу найти/получить?"
+
+headers
+↓
+дополнительная информация о запросе
+"Что нужно сообщить серверу о запросе?"
+```
+
+---
+
+# Короткая памятка
+
+```text
+HEADERS
+│
+├── User-Agent
+│   → какой клиент отправляет запрос
+│
+├── Accept
+│   → какой формат ответа мы хотим получить
+│
+├── Content-Type
+│   → в каком формате находятся отправляемые данные
+│
+└── response.headers
+    → Headers, которые вернул сервер
+```
+
+Пример:
+
+```python
+import requests
+
+headers = {
+    "User-Agent": "MyPythonApp",
+    "Accept": "application/json"
+}
+
+response = requests.get(
+    "https://jsonplaceholder.typicode.com/users",
+    headers=headers
+)
+
+print(response.status_code)
+print(response.json())
+
+# Headers ответа сервера
+print(response.headers)
+
+# Конкретный Header
+print(response.headers.get("Content-Type"))
+```
+
+### Что запомнить в первую очередь
+
+```text
+headers
+→ Headers нашего запроса
+
+response.headers
+→ Headers ответа сервера
+
+User-Agent
+→ кто отправляет запрос
+
+Accept
+→ какой ответ хотим получить
+
+Content-Type
+→ в каком формате передаются данные
+```
+
+
+
+
+# POST-запросы в requests
+
+POST используется, когда мы хотим **отправить данные на сервер**.
+
+```python
+import requests
+
+data = {
+    "name": "Alex",
+    "age": 20
+}
+
+response = requests.post(
+    "https://example.com/users",
+    json=data
+)
+```
+
+## 1. POST
+
+```python
+response = requests.post(url)
+```
+
+Отправляет POST-запрос на сервер.
+
+---
+
+## 2. json=
+
+`json=` используется для отправки данных в **теле HTTP-запроса (Body)** в формате JSON.
+
+```python
+data = {
+    "name": "Alex",
+    "age": 20
+}
+
+response = requests.post(
+    url,
+    json=data
+)
+```
+
+Python-словарь:
+
+```python
+{
+    "name": "Alex",
+    "age": 20
+}
+```
+
+отправляется как JSON:
+
+```json
+{
+    "name": "Alex",
+    "age": 20
+}
+```
+
+---
+
+## 3. params=
+
+`params=` добавляет параметры в **URL**.
+
+```python
+params = {
+    "source": "web"
+}
+
+response = requests.post(
+    url,
+    params=params
+)
+```
+
+URL получится примерно таким:
+
+```text
+/users?source=web
+```
+
+---
+
+## 4. params + json
+
+Их можно использовать одновременно.
+
+```python
+params = {
+    "source": "web"
+}
+
+data = {
+    "name": "Alex",
+    "age": 20
+}
+
+response = requests.post(
+    url,
+    params=params,
+    json=data
+)
+```
+
+В итоге:
+
+```text
+URL:
+https://example.com/users?source=web
+
+Body:
+{
+    "name": "Alex",
+    "age": 20
+}
+```
+
+Главное:
+
+```text
+params → параметры в URL
+json   → данные в Body
+```
+
+---
+
+## 5. response.json()
+
+Если сервер вернул JSON, его можно получить так:
+
+```python
+result = response.json()
+
+print(result)
+```
+
+Не путать:
+
+```python
+json=data
+```
+
+→ отправляем JSON.
+
+```python
+response.json()
+```
+
+→ получаем JSON из ответа.
+
+---
+
+## 6. status_code
+
+Проверяем HTTP-код ответа:
+
+```python
+print(response.status_code)
+```
+
+Например:
+
+```text
+201
+```
+
+`201 Created` означает, что ресурс был создан.
+
+---
+
+## 7. Полный пример
+
+```python
+import requests
+
+params = {
+    "source": "web"
+}
+
+data = {
+    "name": "Alex",
+    "age": 20
+}
+
+response = requests.post(
+    "https://example.com/users",
+    params=params,
+    json=data
+)
+
+print(response.status_code)
+print(response.json())
+```
+
+Схема:
+
+```text
+POST
+│
+├── params → URL
+│
+└── json → Body
+          ↓
+        JSON
+```
+
+Главное запомнить:
+
+```text
+GET  → обычно получаем данные
+POST → обычно отправляем/создаём данные
+
+params → URL
+json   → Body
+
+response.json() → читаем JSON-ответ
+response.status_code → смотрим HTTP-код
+```
+
+
+
+
+
