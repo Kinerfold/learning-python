@@ -1,11 +1,29 @@
 import requests
 
-respose = requests.get('https://jsonplaceholder.typicode.com/users/5')
+url = 'https://jsonplaceholder.typicode.com/users'
 
-print(respose.status_code)
+params = {
+    'id': 1
+}
 
-payload = {'id': 5, 'name': 'Chelsey Dietrich'}
+response = requests.get(
+    url,
+    params=params
+)
 
-requests.get('https://jsonplaceholder.typicode.com/users/5',
-             params=payload)
+data = response.json()
 
+user_data = {
+    'name': data[0]['name'],
+    'email': data[0]['email'],
+    'username': 'egor123'
+}
+
+response = requests.put(
+    f'{url}/8',
+    json=user_data
+)
+
+print(response.raise_for_status())
+
+print(response.json())

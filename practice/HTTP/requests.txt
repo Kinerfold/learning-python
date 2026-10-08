@@ -1359,3 +1359,276 @@ response.status_code → смотрим HTTP-код
 
 
 
+# PUT-запросы в Python `requests`
+
+## 1. Что такое PUT
+
+`PUT` — HTTP-метод, который используется для **замены существующего ресурса**.
+
+Пример:
+
+```python
+import requests
+
+url = "https://jsonplaceholder.typicode.com/users/5"
+
+data = {
+    "id": 5,
+    "name": "Alex",
+    "username": "alex123",
+    "email": "alex@example.com"
+}
+
+response = requests.put(
+    url,
+    json=data
+)
+
+print(response.status_code)
+print(response.json())
+```
+
+Мы обращаемся к:
+
+```text
+/users/5
+```
+
+То есть работаем с конкретным пользователем.
+
+---
+
+## 2. PUT заменяет ресурс
+
+Представим, что у пользователя были данные:
+
+```json
+{
+    "id": 5,
+    "name": "John",
+    "email": "john@example.com",
+    "age": 20
+}
+```
+
+Мы отправляем:
+
+```json
+{
+    "id": 5,
+    "name": "Alex",
+    "email": "alex@example.com",
+    "age": 25
+}
+```
+
+Смысл PUT:
+
+> Замени старую версию ресурса новой версией.
+
+---
+
+## 3. PUT vs PATCH
+
+Это главное.
+
+### PUT
+
+```python
+requests.put(
+    url,
+    json=data
+)
+```
+
+Используем, когда хотим **заменить ресурс целиком**.
+
+### PATCH
+
+```python
+requests.patch(
+    url,
+    json=data
+)
+```
+
+Используем, когда хотим **изменить только часть ресурса**.
+
+---
+
+## 4. Пример разницы
+
+Было:
+
+```json
+{
+    "name": "John",
+    "email": "john@example.com",
+    "age": 20
+}
+```
+
+### PATCH
+
+```python
+requests.patch(
+    url,
+    json={
+        "name": "Alex"
+    }
+)
+```
+
+Меняем только имя.
+
+```text
+name  → Alex
+email → остаётся прежним
+age   → остаётся прежним
+```
+
+### PUT
+
+```python
+requests.put(
+    url,
+    json={
+        "name": "Alex",
+        "email": "alex@example.com",
+        "age": 25
+    }
+)
+```
+
+Передаём новую версию ресурса целиком.
+
+---
+
+## 5. Почему PUT обычно отправляют с полными данными
+
+Если ресурс выглядит так:
+
+```json
+{
+    "name": "John",
+    "email": "john@example.com",
+    "age": 20
+}
+```
+
+то при полном обновлении через PUT логично передать:
+
+```json
+{
+    "name": "Alex",
+    "email": "alex@example.com",
+    "age": 25
+}
+```
+
+То есть не:
+
+```json
+{
+    "name": "Alex"
+}
+```
+
+а всю новую версию ресурса.
+
+---
+
+## 6. PUT + params
+
+`params` можно использовать и с PUT:
+
+```python
+params = {
+    "source": "test"
+}
+
+data = {
+    "name": "Alex",
+    "email": "alex@example.com"
+}
+
+response = requests.put(
+    url,
+    params=params,
+    json=data
+)
+```
+
+Здесь:
+
+```text
+params → URL
+json   → Body
+```
+
+---
+
+## 7. PUT + headers
+
+Headers передаются через `headers=`:
+
+```python
+headers = {
+    "Accept": "application/json"
+}
+
+response = requests.put(
+    url,
+    headers=headers,
+    json=data
+)
+```
+
+---
+
+## 8. Проверка ответа
+
+```python
+print(response.status_code)
+print(response.json())
+```
+
+Можно также посмотреть:
+
+```python
+print(response.text)
+```
+
+---
+
+# Основные HTTP-методы
+
+```text
+GET
+→ получить ресурс
+
+POST
+→ создать ресурс
+
+PUT
+→ заменить ресурс целиком
+
+PATCH
+→ изменить часть ресурса
+
+DELETE
+→ удалить ресурс
+```
+
+### Главное правило
+
+```text
+POST   = СОЗДАТЬ
+PUT    = ЗАМЕНИТЬ
+PATCH  = ИЗМЕНИТЬ ЧАСТИЧНО
+DELETE = УДАЛИТЬ
+```
+
+
+
+
