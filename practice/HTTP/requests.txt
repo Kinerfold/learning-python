@@ -1632,3 +1632,14 @@ DELETE = УДАЛИТЬ
 
 
 
+-Файлы cookie-
+
+Получить доступ к файлам cookie:
+
+url = 'http://example.com/some/cookie/setting/url'
+r = requests.get(url)
+
+r.cookies['example_cookie_name']
+
+
+
