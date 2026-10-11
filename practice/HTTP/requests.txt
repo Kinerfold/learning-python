@@ -1643,3 +1643,122 @@ r.cookies['example_cookie_name']
 
 
 
+
+
+#  Requests — обработка ответов и ошибок
+
+### 1. GET — получить данные
+
+```python
+res = requests.get(url, params={'id': 3}, timeout=5)
+res.raise_for_status()
+data = res.json()
+```
+
+### 2. POST — отправить данные
+
+```python
+user_data = {
+    'name': 'Egor',
+    'username': 'egor123',
+    'email': 'egor@gmail.com'
+}
+
+res = requests.post(url, json=user_data, timeout=5)
+res.raise_for_status()
+data = res.json()
+```
+
+### 3. Основные методы Response
+
+```python
+res.status_code  # HTTP-статус: 200, 201, 404
+res.text         # Ответ в виде текста
+res.json()       # JSON → Python-объект
+res.raise_for_status()  # Ошибка при статусе 4xx или 5xx
+```
+
+**Важно:** `raise_for_status()` возвращает `None`, если ошибки нет. Он не возвращает статус.
+
+### 4. Список и словарь
+
+```python
+data[0]['name']  # Первый элемент списка → ключ name
+data['name']     # Ключ name в словаре
+```
+
+- `/users?id=3` → список словарей.
+- `/users/3` → один словарь.
+
+### 5. Обработка исключений
+
+```python
+try:
+    res = requests.get(url, timeout=5)
+    res.raise_for_status()
+except requests.exceptions.HTTPError as e:
+    print(f'HTTP-ошибка: {e}')
+except requests.exceptions.RequestException as e:
+    print(f'Ошибка запроса: {e}')
+```
+
+- `HTTPError` — HTTP-ответ с ошибкой 4xx или 5xx при вызове `raise_for_status()`.
+- `Timeout` — превышено время ожидания.
+- `SSLError` — ошибка SSL/TLS.
+- `RequestException` — общая категория ошибок Requests.
+
+### 6. Важные правила
+
+- `json=data` — отправляет данные в JSON.
+- `params=data` — передаёт параметры в URL.
+- `timeout=5` — задаёт тайм-аут ожидания сетевой активности.
+- `try` должен включать запрос и `raise_for_status()`, чтобы ловить соответствующие ошибки.
+- Для вывода значения используй `print(res.status_code)`.
+- JSONPlaceholder — тестовый API: POST имитирует создание пользователя, но не сохраняет его постоянно.
+
+
+
+
+
+**Requests Session Redirects Pagination**
+
+**Session и Cookies**
+requests.Session() создает сессию которая сохраняет cookies и общие настройки между запросами
+session.headers.update() задает общие заголовки
+session.cookies.get_dict() показывает сохраненные cookies
+with requests.Session() закрывает сессию после завершения блока
+
+**Функции для запросов**
+def get_response(session, url, params=None) создает функцию для GET запроса
+params=None означает что параметр необязательный
+timeout=5 задает время ожидания ответа
+raise_for_status() вызывает исключение при HTTP ошибке
+return response возвращает объект ответа
+
+**Redirects**
+Redirect это перенаправление на другой URL
+response.url показывает конечный URL
+response.history хранит историю перенаправлений
+response.headers.get('Location') показывает адрес следующего ресурса
+allow_redirects=False отключает автоматические перенаправления
+301 и 308 постоянные перенаправления
+302 и 307 временные перенаправления
+303 обычно приводит к запросу GET
+
+**Pagination**
+Пагинация это получение данных частями по страницам
+params передает параметры в URL
+JSONPlaceholder использует параметры _page и _limit
+_page задает номер страницы
+_limit задает количество записей на странице
+response.json() преобразует JSON в Python объект
+len(data) возвращает количество элементов
+for post in data перебирает публикации
+post['id'] это ID публикации
+post['userId'] это ID автора
+range(1, 4) перебирает числа 1 2 и 3
+
+**Обработка ошибок**
+raise_for_status() вызывается после запроса до обработки JSON
+HTTPError обрабатывает HTTP ошибки
+RequestException обрабатывает ошибки Requests
