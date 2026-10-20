@@ -2309,3 +2309,108 @@ else:
 
 
 
+Python Requests. Скачивание файлов
+
+Потоковое скачивание файлов
+
+Параметр stream=True позволяет получать ответ постепенно, а не загружать всё содержимое файла в память сразу. Это полезно при скачивании больших файлов.
+
+Пример:
+
+import requests
+
+url = 'https://httpbin.org/image/png'
+
+response = requests.get(url, stream=True, timeout=10)
+response.raise_for_status()
+
+with open('image.png', 'wb') as file:
+    for chunk in response.iter_content(chunk_size=4096):
+        if chunk:
+            file.write(chunk)
+
+response.close()
+
+iter_content(chunk_size=4096) получает содержимое ответа частями. Параметр chunk_size задаёт желаемый размер одной части в байтах, но не гарантирует, что каждая часть будет именно такого размера.
+
+chunk — очередная часть данных, полученная от сервера.
+
+if chunk проверяет, что часть не пустая. Пустые части не нужно записывать в файл.
+
+Бинарная запись файла
+
+Режим wb используется для записи бинарных данных. Он подходит для изображений, архивов и других файлов, которые не являются обычным текстом.
+
+with open('image.png', 'wb') as file:
+    file.write(chunk)
+
+file.write(chunk) записывает полученные байты в файл.
+
+Режим wb создаёт файл, если его нет, и перезаписывает его, если он уже существует.
+
+Контекстный менеджер with
+
+Конструкция with используется для автоматического закрытия ресурсов после завершения работы с ними.
+
+with open('image.png', 'wb') as file:
+    file.write(chunk)
+
+После выхода из блока with файл автоматически закрывается.
+
+При потоковом скачивании можно использовать with и для HTTP-ответа:
+
+with requests.get(url, stream=True, timeout=10) as response:
+    response.raise_for_status()
+
+    with open('image.png', 'wb') as file:
+        for chunk in response.iter_content(chunk_size=4096):
+            if chunk:
+                file.write(chunk)
+
+В этом примере после завершения работы автоматически закрываются и файл, и HTTP-ответ.
+
+Обработка ошибок
+
+raise_for_status() вызывает HTTPError, если сервер вернул ошибочный HTTP-статус, например 404 или 500.
+
+timeout задаёт ограничение времени ожидания ответа. Например, timeout=10 устанавливает тайм-аут в 10 секунд.
+
+При работе с запросами могут возникнуть следующие исключения:
+
+requests.Timeout — превышено время ожидания.
+requests.HTTPError — сервер вернул ошибочный HTTP-статус после вызова raise_for_status().
+requests.ConnectionError — ошибка соединения.
+requests.RequestException — базовый класс исключений Requests.
+
+Пример:
+
+import requests
+
+try:
+    with requests.get(url, stream=True, timeout=10) as response:
+        response.raise_for_status()
+
+        with open('image.png', 'wb') as file:
+            for chunk in response.iter_content(chunk_size=4096):
+                if chunk:
+                    file.write(chunk)
+
+except requests.RequestException as error:
+    print(f'Ошибка запроса: {error}')
+
+Подсчёт размера скачанного файла
+
+Чтобы узнать, сколько байтов было записано, можно использовать len(chunk). Эта функция возвращает количество байтов в текущей части.
+
+Пример:
+
+total_bytes = 0
+
+for chunk in response.iter_content(chunk_size=4096):
+    if chunk:
+        file.write(chunk)
+        total_bytes += len(chunk)
+
+print(total_bytes)
+
+total_bytes += len(chunk) прибавляет к общей сум
