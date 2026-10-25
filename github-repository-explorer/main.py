@@ -1,9 +1,61 @@
 import requests
+import json
+from datetime import datetime
 
 url = 'https://api.github.com/search/repositories'
 
+def show_search_history():
+    history = load_search_history()
+
+    if not history:
+        print('История поиска пуста')
+        return
+
+    print('\nИстория поиска:')
+
+    for number, entry in enumerate(history, start=1):
+        print(f'{number}. Запрос: {entry["query"]}')
+        print(f'   Дата: {entry["searched_at"]}')
+
+def load_search_history():
+    try:
+        with open('search_history.json', 'r', encoding='utf-8') as file:
+            return json.load(file)
+
+    except FileNotFoundError:
+        return False
+
+    except (json.JSONDecodeError, OSError) as error:
+        print(f'Не удалось прочитать историю: {error}')
+
+def save_search_history(query):
+    try:
+        with open('search_history.json', 'r', encoding='utf-8') as file:
+            history = json.load(file)
+
+    except FileNotFoundError:
+        history = []
+
+    except json.JSONDecodeError:
+        print('Файл истории повреждён')
+
+    history.append({
+        'query': query,
+        'searched_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    })
+
+    try:
+        with open('search_history.json', 'w', encoding='utf-8') as file:
+            json.dump(history, file, ensure_ascii=False, indent=4)
+
+    except OSError as error:
+        print(f'Не удалось сохранить историю: {error}')
+
 def search_repositories():
     search = input('Поиск репозиториев: ')
+    
+    if search.strip():
+        save_search_history(search.strip())
     
     try:
         response = requests.get(
@@ -81,16 +133,22 @@ def show_repositories(repositories):
 
 def menu():
     while True:
-        choice = int(input('\n\t1. Поиск репозиториев\n\t2. Выход\n'))
-        
-        if choice == 1:
+        choice = input('\n1. Поиск репозиториев\n''2. История поиска\n''3. Выход\n')
+
+        if choice == '1':
             repositories = search_repositories()
-            
+
             if repositories:
                 show_repositories(repositories)
-        
-        elif choice == 2:
+
+        elif choice == '2':
+            show_search_history()
+
+        elif choice == '3':
             break
+
+        else:
+            print('Неизвестная команда')
 
 if __name__ == '__main__': # файл запускается напрямую. можно добавить if
     menu()
