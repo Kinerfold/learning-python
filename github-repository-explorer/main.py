@@ -4,6 +4,40 @@ from datetime import datetime
 
 url = 'https://api.github.com/search/repositories'
 
+def old_search_history():
+    try:
+        history = load_search_history()
+
+        show_search_history()
+        
+        choice = int(input('Номер запроса: '))
+        
+        if 1 <= choice <= len(history): # если choice больше/равно 1 и, если choice больше/равно длине repositories
+            selected = history[choice - 1]
+            
+            owner, repo_name = selected['query']
+    
+            url = f'https://api.github.com/repos/{owner}/{repo_name}'
+        
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+
+            repository_data = response.json()
+            
+            print('\nПодробная информация о репозитории:\n')
+            print(f'Название: {repository_data["full_name"]}')
+            print(f'Описание: {repository_data["description"]}')
+            print(f'Язык: {repository_data["language"]}')
+            print(f'Звёзды: {repository_data["stargazers_count"]}')
+            print(f'Форки: {repository_data["forks_count"]}')
+            print(f'Дата создания: {repository_data["created_at"]}\n')
+            print(f'Ссылка: {repository_data["html_url"]}\n')
+        else:
+            print('Такого номера нет')
+                
+    except ValueError:
+        print('Нужно ввести целое число')
+
 def show_search_history():
     history = load_search_history()
 
@@ -15,7 +49,7 @@ def show_search_history():
 
     for number, entry in enumerate(history, start=1):
         print(f'{number}. Запрос: {entry["query"]}')
-        print(f'   Дата: {entry["searched_at"]}')
+        print(f'Дата: {entry["searched_at"]}')
 
 def load_search_history():
     try:
@@ -55,7 +89,7 @@ def search_repositories():
     search = input('Поиск репозиториев: ')
     
     if search.strip():
-        save_search_history(search.strip())
+        save_search_history(search.strip()) # strip() удаляет символы с начала и конца строки
     
     try:
         response = requests.get(
@@ -133,7 +167,7 @@ def show_repositories(repositories):
 
 def menu():
     while True:
-        choice = input('\n1. Поиск репозиториев\n''2. История поиска\n''3. Выход\n')
+        choice = input('\n\t1. Поиск репозиторие\n\t2. Показать историю\n\t3. Повторить поиск из истории\n\t4. Выход\n')
 
         if choice == '1':
             repositories = search_repositories()
@@ -143,8 +177,11 @@ def menu():
 
         elif choice == '2':
             show_search_history()
-
+        
         elif choice == '3':
+            old_search_history()
+
+        elif choice == '4':
             break
 
         else:
