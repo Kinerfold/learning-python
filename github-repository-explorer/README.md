@@ -1,0 +1,1 @@
+This is a training project that interacts with the real GitHub API. Its task is — to allow the user to search for public GitHub repositories, view results and obtain detailed information about the selected repository.
