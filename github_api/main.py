@@ -14,31 +14,30 @@ def search_repositories():
         )
 
         print(response.status_code)
-
+        
         response.raise_for_status()
-
+        
         data = response.json()
-
+        
         repositories = data['items']
 
-        if repositories:
-            for number, rep in enumerate(repositories, start=1):
-                print(number, '|', f'Название: {rep['full_name']}')
-                print(f'Язык: {rep['language']}')
-                print(f'Описание: {rep['description']}')
-                print(f'Звёзды: {rep['stargazers_count']}\n')
-                print(f'Ссылка: {rep['html_url']}\n')
+        if not repositories:
+            print('Репозитории не найдены')
         
-            show_repositories()
+        for number, rep in enumerate(repositories, start=1): # подсчёт начинается с 1
+            print(number, '|', f'Название: {rep['full_name']}')
+            print(f'Язык: {rep['language']}')
+            print(f'Описание: {rep['description']}')
+            print(f'Звёзды: {rep['stargazers_count']}\n')
+            print(f'Ссылка: {rep['html_url']}\n')
         
-        else:
-            print('Ничего нету')                
+        return repositories              
 
-    except requests.exceptions.HTTPError as e:
-        print(f'Ошибка HTTPError: {e}')
-
-    except ValueError:
-        print('Нужно ввести целое число')
+    except requests.exceptions.RequestException as e: # хранит в себе сетевые ошибки, тайм-ауты и HTTP-ошибки
+        print(f'Ошибка зарпоса: {e}')
+    
+    except (ValueError, KeyError) as e:
+        print(f'Ошибка ответа: {e}')
 
 def get_repository_details(repository):
     owner, repo_name = repository['full_name'].split('/')
@@ -59,8 +58,6 @@ def get_repository_details(repository):
         print(f'Форки: {repository_data["forks_count"]}')
         print(f'Дата создания: {repository_data["created_at"]}\n')
         print(f'Ссылка: {repository_data["html_url"]}\n')
-        
-        menu()
 
     except requests.exceptions.HTTPError as e:
         print(f'Ошибка HTTPError: {e}')
@@ -69,14 +66,18 @@ def get_repository_details(repository):
         print(f'Ошибка запроса: {e}')
 
 def show_repositories(repositories):
-    choice = int(input('Выбери номер репозитория: '))
+    try:
+        choice = int(input('Выбери номер репозитория: '))
 
-    if 1 <= choice <= len(repositories):
-        selected = repositories[choice - 1]
+        if 1 <= choice <= len(repositories): # если choice больше/равно 1 и, если choice больше/равно длине repositories
+            selected = repositories[choice - 1]
 
-        get_repository_details(selected)
-    else:
-        print('Такого номера нет')
+            get_repository_details(selected)
+        else:
+            print('Такого номера нет')
+    
+    except ValueError:
+        print('Нужно ввести целое число')
 
 def menu():
     while True:
@@ -84,9 +85,12 @@ def menu():
         
         if choice == 1:
             repositories = search_repositories()
-            print(repositories)
+            
+            if repositories:
+                show_repositories(repositories)
         
         elif choice == 2:
             break
 
-menu()
+if __name__ == '__main__': # файл запускается напрямую. можно добавить if
+    menu()
