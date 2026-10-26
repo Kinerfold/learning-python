@@ -8,32 +8,19 @@ def old_search_history():
     try:
         history = load_search_history()
 
-        show_search_history()
+        if not history:
+            print('История поиска пуста')
+            
+            return # останавливаем функцию, т.к. при not history, функция продолжвет выполнятся дальше
         
         choice = int(input('Номер запроса: '))
         
-        if 1 <= choice <= len(history): # если choice больше/равно 1 и, если choice больше/равно длине repositories
+        if 1 <= choice <= len(history):
             selected = history[choice - 1]
             
-            owner, repo_name = selected['query']
-    
-            url = f'https://api.github.com/repos/{owner}/{repo_name}'
-        
-            response = requests.get(url, timeout=10)
-            response.raise_for_status()
-
-            repository_data = response.json()
+            query = selected['query']
             
-            print('\nПодробная информация о репозитории:\n')
-            print(f'Название: {repository_data["full_name"]}')
-            print(f'Описание: {repository_data["description"]}')
-            print(f'Язык: {repository_data["language"]}')
-            print(f'Звёзды: {repository_data["stargazers_count"]}')
-            print(f'Форки: {repository_data["forks_count"]}')
-            print(f'Дата создания: {repository_data["created_at"]}\n')
-            print(f'Ссылка: {repository_data["html_url"]}\n')
-        else:
-            print('Такого номера нет')
+            search_repositories(query)
                 
     except ValueError:
         print('Нужно ввести целое число')
@@ -85,17 +72,18 @@ def save_search_history(query):
     except OSError as error:
         print(f'Не удалось сохранить историю: {error}')
 
-def search_repositories():
-    search = input('Поиск репозиториев: ')
-    
-    if search.strip():
-        save_search_history(search.strip()) # strip() удаляет символы с начала и конца строки
+def search_repositories(query=None):
+    if query is None:
+        query = input('Поиск репозиториевв: ').strip()
+        
+        if query:
+            print('Поисковый запрос пуст')
     
     try:
         response = requests.get(
             url,
             timeout=3,
-            params={'q': search,
+            params={'q': query,
                     'per_page': 5}
         )
 
