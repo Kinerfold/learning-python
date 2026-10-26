@@ -4,6 +4,48 @@ from datetime import datetime
 
 url = 'https://api.github.com/search/repositories'
 
+def delete_search_history():    
+    try:
+        history = load_search_history()
+        
+        if not history:
+            print('История поиска пуста')
+            
+            return
+
+        print('\n\t1. Удаление отдельной записи\n\t2. Очистка всей истории\n\t')
+        
+        number = int(input('Выберите действие: '))
+        
+        if number == 1:
+            print(history)
+            
+            choice = int(input('Номер записи: '))
+            
+            if choice:
+                deleted = history.pop(choice - 1)
+                
+                with open('search_history.json', 'w', encoding='utf-8') as file:
+                    json.dump(history, file, ensure_ascii=False, indent=4)
+                
+                print(f'Запрос: {deleted['query']} был удалён')
+            else:
+                print('Такого номера нету')
+                    
+        elif number == 2:
+            history = [] # т.к. удаляем всю историю, создаём новую переменну и сохраняем данные через json.dump(history)
+            
+            with open('search_history.json', 'w', encoding='utf-8') as file:
+                json.dump(history, file, ensure_ascii=False, indent=4)
+                
+            print('История поиска полностью очищена')
+        
+        else:
+            print('Такого действия нету')
+        
+    except ValueError:
+        print('Нужно ввести целое число')
+
 def old_search_history():
     try:
         history = load_search_history()
@@ -44,7 +86,7 @@ def load_search_history():
             return json.load(file)
 
     except FileNotFoundError:
-        return False
+        return False # возвращаем false, чтобы понимать, что функция сработала неправильно
 
     except (json.JSONDecodeError, OSError) as error:
         print(f'Не удалось прочитать историю: {error}')
@@ -55,10 +97,12 @@ def save_search_history(query):
             history = json.load(file)
 
     except FileNotFoundError:
-        history = []
+        history = [] # если json файл не найден, мы создаём переменную с пустым список, что потом не было ошибок при добавлении данных в переменную history
 
     except json.JSONDecodeError:
         print('Файл истории повреждён')
+        
+        history = []
 
     history.append({
         'query': query,
@@ -74,10 +118,14 @@ def save_search_history(query):
 
 def search_repositories(query=None):
     if query is None:
-        query = input('Поиск репозиториевв: ').strip()
+        query = input('Поиск репозиториев: ').strip()
         
-        if query:
+        if not query:
             print('Поисковый запрос пуст')
+            
+            return
+
+        save_search_history(query)
     
     try:
         response = requests.get(
@@ -155,7 +203,11 @@ def show_repositories(repositories):
 
 def menu():
     while True:
-        choice = input('\n\t1. Поиск репозиторие\n\t2. Показать историю\n\t3. Повторить поиск из истории\n\t4. Выход\n')
+        choice = input('\n\t1. Поиск репозиториев\n\t'
+                        '2. Показать историю\n\t'
+                      '3. Повторить поиск из истории\n\t'
+                      '4. Удаление поиска из истории\n\t'
+                       '\n5. Выход\n')
 
         if choice == '1':
             repositories = search_repositories()
@@ -168,8 +220,11 @@ def menu():
         
         elif choice == '3':
             old_search_history()
-
+        
         elif choice == '4':
+            delete_search_history()
+
+        elif choice == '5':
             break
 
         else:
