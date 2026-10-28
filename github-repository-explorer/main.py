@@ -13,7 +13,17 @@ def save_repositories(repositories):
             
             return
         
-        for number, j in enumerate(repositories, start=1):
+        try:
+            with open('repositories.json', 'r', encoding='utf=8') as file:
+                saved = json.load(file)
+        
+        except FileNotFoundError:
+            saved = [] # создаётся пустой список, если нету файла
+        
+        if isinstance(saved, dict): # которая проверяет, относится ли объект (saved) к определённому типу данных (dict)
+                saved = [saved] # если saved - словарь, то мы помещаем его внутрь списка
+        
+        for number, j in enumerate(repositories, start=1): # функция enumerate добавляет счётчик (start=) к объекту (repositories)
             print(f'{number}: {j['query']}')
         
         choice = int(input('Номер репозитория для сохранения в файл: '))
@@ -21,8 +31,13 @@ def save_repositories(repositories):
         if 1 <= choice <= len(repositories):
             selected = repositories[choice - 1]
             
+            saved.append({
+                'name': selected['query'],
+                'searched_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            })
+                        
             with open('repositories.json', 'w', encoding='utf-8') as file:
-                json.dump(selected, file, ensure_ascii=False, indent=4)
+                json.dump(saved, file, ensure_ascii=False, indent=4)
                 
                 print('\tРепозиторий сохранён!\n')
     
@@ -30,7 +45,9 @@ def save_repositories(repositories):
         repositories = [] # если json файл не найден, мы создаём переменную с пустым список, что потом не было ошибок при добавлении данных в переменную history
 
     except json.JSONDecodeError:
-        print('Файл истории повреждён')
+        print('Файл repository.json повреждён')
+        
+        repositories = []
 
 def delete_search_history(): # удаляет отдельную историю или же всю историю запросов
     try:
