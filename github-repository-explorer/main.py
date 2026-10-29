@@ -4,6 +4,31 @@ from datetime import datetime
 
 url = 'https://api.github.com/search/repositories'
 
+def sort(repositories): # сортирует репозитории по значениям
+    choice = int(input('''\tСортировать:\t
+                       | 1. Язык программирования
+                       | 2. Звёзды
+                       | 3. Форки\n'''))
+    
+    if choice == 1:
+        repositories = sorted(
+            repositories, # получаем каждый элемент из списка
+            key=lambda repository: repository['language']
+        )
+    # функция в одну строчку, 
+    # которая принимает словарь repository и сортирует по stargazers_count
+    elif choice == 2:
+        repositories = sorted(
+            repositories,
+            key=lambda repository: repository['stargazers_count']
+        ) # key указывает, по какому значению сортировать элементы
+    
+    elif choice == 3:
+        repositories = sorted(
+            repositories,
+            key=lambda repository: repository['forks_count']
+        )
+
 def save_repositories(repositories):
     try:
         repositories = load_search_history()
@@ -164,49 +189,59 @@ def save_search_history(query): # сохраняет историю запрос
         print(f'Не удалось сохранить историю: {error}')
 
 def search_repositories(query=None): # поиск репозиториев
-    if query is None:
-        query = input('Поиск репозиториев: ').strip()
-        
-        if not query:
-            print('Поисковый запрос пуст')
+    user = input('Задать сортировку репозиториев по значениям? да/нет\n')
+    
+    if user == 'да':
+        sort(repositories)
+    
+    elif user == 'нет':
+        if query is None:
+            query = input('Поиск репозиториев: ').strip()
             
-            return
+            if not query:
+                print('Поисковый запрос пуст')
+                
+                return
 
-        save_search_history(query)
+            save_search_history(query)
+        
+        try:
+            response = requests.get(
+                url,
+                timeout=3,
+                params={'q': query,
+                        'per_page': 5}
+            )
+
+            print(response.status_code)
+            
+            response.raise_for_status()
+            
+            data = response.json()
+            
+            repositories = data['items']
+
+            if not repositories:
+                print('Репозитории не найдены')
+            
+            for number, rep in enumerate(repositories, start=1): # подсчёт начинается с 1
+                print(number, '|', f'Название: {rep['full_name']}')
+                print(f'Язык: {rep['language']}')
+                print(f'Описание: {rep['description']}')
+                print(f'Звёзды: {rep['stargazers_count']}')
+                print(f'Форки: {rep['forks_count']}\n')
+                print(f'Ссылка: {rep['html_url']}\n')
+            
+            return repositories              
+
+        except requests.exceptions.RequestException as e: # хранит в себе сетевые ошибки, тайм-ауты и HTTP-ошибки
+            print(f'Ошибка зарпоса: {e}')
+        
+        except (ValueError, KeyError) as e:
+            print(f'Ошибка ответа: {e}')
     
-    try:
-        response = requests.get(
-            url,
-            timeout=3,
-            params={'q': query,
-                    'per_page': 5}
-        )
-
-        print(response.status_code)
-        
-        response.raise_for_status()
-        
-        data = response.json()
-        
-        repositories = data['items']
-
-        if not repositories:
-            print('Репозитории не найдены')
-        
-        for number, rep in enumerate(repositories, start=1): # подсчёт начинается с 1
-            print(number, '|', f'Название: {rep['full_name']}')
-            print(f'Язык: {rep['language']}')
-            print(f'Описание: {rep['description']}')
-            print(f'Звёзды: {rep['stargazers_count']}\n')
-            print(f'Ссылка: {rep['html_url']}\n')
-        
-        return repositories              
-
-    except requests.exceptions.RequestException as e: # хранит в себе сетевые ошибки, тайм-ауты и HTTP-ошибки
-        print(f'Ошибка зарпоса: {e}')
-    
-    except (ValueError, KeyError) as e:
-        print(f'Ошибка ответа: {e}')
+    else:
+        print('\nОтвета не существует!\n')
 
 def get_repository_details(repository): # подробная информация репозиториев
     owner, repo_name = repository['full_name'].split('/')
