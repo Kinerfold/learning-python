@@ -17,6 +17,7 @@ def sort_history_repositories(data):
         
         if sort == 1:
             choice = int(input('| 1. По возрастанию\n| 2. По убыванию\n'))
+            pass
             
             if choice == 1:
                 pass
@@ -26,7 +27,11 @@ def sort_history_repositories(data):
         
         elif sort == 2:
             pass
-    
+        
+        elif sort == 3:
+            choice = int(input('| 1. По возрастанию\n| 2. По убыванию\n'))
+            pass
+
     except ValueError:
         print('Нужно ввести целое число')
 
@@ -164,7 +169,7 @@ def load_search_history(): # загружает историю запросов 
     except (json.JSONDecodeError, OSError) as error:
         print(f'Не удалось прочитать историю: {error}')
 
-def save_search_history(query): # сохраняет историю запросов в json файле
+def save_search_history(query, language, description, stargazers_count, html_url, forks_count): # сохраняет историю запросов в json файле
     try:
         with open('search_history.json', 'r', encoding='utf-8') as file:
             history = json.load(file)
@@ -179,6 +184,11 @@ def save_search_history(query): # сохраняет историю запрос
 
     history.append({
         'query': query,
+        'language': language,
+        'description': description,
+        'stargazers_count': stargazers_count,
+        'html_url': html_url,
+        'forks_count': forks_count,
         'searched_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     })
 
@@ -189,53 +199,66 @@ def save_search_history(query): # сохраняет историю запрос
     except OSError as error:
         print(f'Не удалось сохранить историю: {error}')
 
-def search_repositories(query=None): # поиск репозиториев
+def search_repositories(query=None):
     if query is None:
-        query = input('Поиск репозиториев: ').strip()
-        
+        query = input('Поиск репозиториев: ').strip() # раздляет строку на несколько частей и возвращает в виде списка
+
         if not query:
             print('Поисковый запрос пуст')
-            
             return
 
-        save_search_history(query)
-    
     try:
         response = requests.get(
             url,
             timeout=3,
-            params={'q': query,
-                    'per_page': 5}
+            params={'q': query, 'per_page': 5}
         )
 
         print(response.status_code)
-        
+
         response.raise_for_status()
-        
+
         data = response.json()
-        
         repositories = data['items']
 
         if not repositories:
             print('Репозитории не найдены')
-        
-        for number, rep in enumerate(repositories, start=1): # подсчёт начинается с 1
-            print(number, '|', f'Название: {rep['full_name']}')
-            print(f'Язык: {rep['language']}')
-            print(f'Описание: {rep['description']}')
-            print(f'Звёзды: {rep['stargazers_count']}\n')
-            print(f'Ссылка: {rep['html_url']}\n')
-        
-        return repositories              
+            return
 
-    except requests.exceptions.RequestException as e: # хранит в себе сетевые ошибки, тайм-ауты и HTTP-ошибки
-        print(f'Ошибка зарпоса: {e}')
-    
+        # создаём пустые списки для параметров из github api. query нету, т.к. query уже определён = query=None
+        language = []
+        description = []
+        stargazers_count = []
+        html_url = []
+        forks_count = []
+
+        for rep in repositories: # перебираем ответ github api и указываем параметр.append(). Добавляем, какие параметры нужны
+            language.append(rep['language'])
+            description.append(rep['description'])
+            stargazers_count.append(rep['stargazers_count'])
+            html_url.append(rep['html_url'])
+            forks_count.append(rep['forks_count'])
+        # передаём параметры в функцию для сохранения в файл.json
+        save_search_history(query, language, description, stargazers_count, html_url, forks_count)
+
+        for number, rep in enumerate(repositories, start=1):
+            print(number, '|', f'Название: {rep["full_name"]}')
+            print(f'Язык: {rep["language"]}')
+            print(f'Описание: {rep["description"]}')
+            print(f'Звёзды: {rep["stargazers_count"]}')
+            print(f'Форки: {rep["forks_count"]}')
+            print(f'Ссылка: {rep["html_url"]}\n')
+
+        return repositories # возвращаем repositories, чтобы использовать его за пределами функции
+
+    except requests.exceptions.RequestException as e:
+        print(f'Ошибка запроса: {e}')
+
     except (ValueError, KeyError) as e:
         print(f'Ошибка ответа: {e}')
 
 def get_repository_details(repository): # подробная информация репозиториев
-    owner, repo_name = repository['full_name'].split('/')
+    owner, repo_name = repository['full_name'].split('/') # вывод: TheAlgorithms/Python
     
     url = f'https://api.github.com/repos/{owner}/{repo_name}'
     
