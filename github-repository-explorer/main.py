@@ -4,6 +4,32 @@ from datetime import datetime
 
 url = 'https://api.github.com/search/repositories'
 
+def sort_history_repositories(data):
+    try:
+        if not data:
+            print('\nИстория запросов пуста')
+        
+        sort = int(input('''Сортировать по:\n
+                     | 1. Количеству звёзд\n
+                     | 2. Названию\n
+                     | 3. Количеству форков\n
+                     '''))
+        
+        if sort == 1:
+            choice = int(input('| 1. По возрастанию\n| 2. По убыванию\n'))
+            
+            if choice == 1:
+                pass
+            
+            elif choice == 2:
+                pass
+        
+        elif sort == 2:
+            pass
+    
+    except ValueError:
+        print('Нужно ввести целое число')
+
 def save_repositories(repositories):
     try:
         repositories = load_search_history()
@@ -256,7 +282,8 @@ def menu(): # консольное меню
                         '\t3. Показать историю\n\t'
                       '4. Повторить поиск из истории\n\t'
                       '5. Удаление поиска из истории\n\t'
-                       '\n6. Выход\n\n')
+                      '6. Вывод и сортировка репозиториев из истории запросов\n\t'
+                       '\n7. Выход\n\n')
 
         if choice == '1':
             repositories = search_repositories()
@@ -280,6 +307,12 @@ def menu(): # консольное меню
             delete_search_history()
 
         elif choice == '6':
+            data = load_search_history()
+            
+            if data:
+                sort_history_repositories(data)
+
+        elif choice == '7':
             break
 
         else:
