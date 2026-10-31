@@ -20,10 +20,21 @@ def sort_history_repositories(data):
             pass
             
             if choice == 1:
-                pass
+                sort_repo = sorted(
+                    data,
+                    key=lambda rep: rep['stargazers_count']
+                )
+                    
+                print(sort_repo)
             
             elif choice == 2:
-                pass
+                sort_repo = sorted(
+                    data,
+                    key=lambda rep: rep['stargazers_count'],
+                    reverse=True # по умолчанию, sorted() сортирует по возрастанию. True - по убыванию
+                )    
+
+                print(sort_repo)
         
         elif sort == 2:
             pass
@@ -201,7 +212,7 @@ def save_search_history(query, language, description, stargazers_count, html_url
 
 def search_repositories(query=None):
     if query is None:
-        query = input('Поиск репозиториев: ').strip() # раздляет строку на несколько частей и возвращает в виде списка
+        query = input('Поиск репозиториев: ').strip() # очищает ответ пользователя от пробелов, чтобы строка не была пустой
 
         if not query:
             print('Поисковый запрос пуст')
