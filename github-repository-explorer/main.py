@@ -46,50 +46,30 @@ def sort_history_repositories(data):
     except ValueError:
         print('Нужно ввести целое число')
 
-def save_repositories(repositories):
+def save_repositories(history):
     try:
-        repositories = load_search_history()
-
-        if not repositories:
-            print('Список репозиториев пуст')
-            
-            return
+        history = load_search_history()
         
-        try:
-            with open('repositories.json', 'r', encoding='utf=8') as file:
-                saved = json.load(file)
+        if not history:
+            print('\nИстория запросов пуста!')
         
-        except FileNotFoundError:
-            saved = [] # создаётся пустой список, если нету файла
+        for number, j in enumerate(history, start=1):
+            print(f'{number}: {j['query']}\nДата: {j['searched_at']}\n')
+                    
+        user = int(input('Выберите номер запроса: '))
         
-        if isinstance(saved, dict): # которая проверяет, относится ли объект (saved) к определённому типу данных (dict)
-                saved = [saved] # если saved - словарь, то мы помещаем его внутрь списка
+        selected = history[user - 1]
         
-        for number, j in enumerate(repositories, start=1): # функция enumerate добавляет счётчик (start=) к объекту (repositories)
-            print(f'{number}: {j['query']}')
-        
-        choice = int(input('Номер репозитория для сохранения в файл: '))
-
-        if 1 <= choice <= len(repositories):
-            selected = repositories[choice - 1]
-            
-            saved.append({
-                'name': selected['query'],
-                'searched_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            })
-                        
-            with open('repositories.json', 'w', encoding='utf-8') as file:
-                json.dump(saved, file, ensure_ascii=False, indent=4)
+        with open('repositories.json', 'w', encoding='utf-8') as file:
+                json.dump(selected, file, ensure_ascii=False, indent=4)
                 
-                print('\tРепозиторий сохранён!\n')
+                print('\nРепозиторий сохранён!')
+        
+    except ValueError:
+        print('\nДолжно быть целое число')
     
     except FileNotFoundError:
-        repositories = [] # если json файл не найден, мы создаём переменную с пустым список, что потом не было ошибок при добавлении данных в переменную history
-
-    except json.JSONDecodeError:
-        print('Файл repository.json повреждён')
-        
-        repositories = []
+        print('\nФайл повреждён')
 
 def delete_search_history(): # удаляет отдельную историю или же всю историю запросов
     try:
@@ -231,29 +211,14 @@ def search_repositories(query=None):
         if not repositories:
             print('Репозитории не найдены')
             return
-
-        # создаём пустые списки для параметров из github api. query нету, т.к. query уже определён = query=None
-        language = []
-        description = []
-        stargazers_count = []
-        html_url = []
-        forks_count = []
-
-        for rep in repositories: # перебираем ответ github api и указываем параметр.append(). Добавляем, какие параметры нужны
-            language.append(rep['language'])
-            description.append(rep['description'])
-            stargazers_count.append(rep['stargazers_count'])
-            html_url.append(rep['html_url'])
-            forks_count.append(rep['forks_count'])
+        
         # передаём параметры в функцию для сохранения в файл.json
         save_search_history(query)
 
         for number, rep in enumerate(repositories, start=1):
             print(number, '|', f'Название: {rep["full_name"]}')
             print(f'Язык: {rep["language"]}')
-            print(f'Описание: {rep["description"]}')
-            print(f'Звёзды: {rep["stargazers_count"]}')
-            print(f'Форки: {rep["forks_count"]}\n')
+            print(f'Описание: {rep["description"]}\n')
             print(f'Ссылка: {rep["html_url"]}\n')
 
         return repositories # возвращаем repositories, чтобы использовать его за пределами функции
@@ -322,10 +287,10 @@ def menu(): # консольное меню
                 show_repositories(repositories)
         
         elif choice == '2':
-            repositories = load_search_history()
+            history = load_search_history()
             
-            if repositories:
-                save_repositories(repositories)
+            if history:
+                save_repositories(history)
 
         elif choice == '3':
             show_search_history()
