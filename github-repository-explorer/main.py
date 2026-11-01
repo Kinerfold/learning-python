@@ -142,7 +142,7 @@ def old_search_history(): # просмотр СТАРОЙ истории зап�
             
             return # останавливаем функцию, т.к. при not history, функция продолжвет выполнятся дальше
         
-        print(history)
+        show_search_history()
         
         choice = int(input('Номер запроса: '))
         
@@ -180,7 +180,7 @@ def load_search_history(): # загружает историю запросов 
     except (json.JSONDecodeError, OSError) as error:
         print(f'Не удалось прочитать историю: {error}')
 
-def save_search_history(query, language, description, stargazers_count, html_url, forks_count): # сохраняет историю запросов в json файле
+def save_search_history(query): # сохраняет историю запросов в json файле
     try:
         with open('search_history.json', 'r', encoding='utf-8') as file:
             history = json.load(file)
@@ -189,17 +189,12 @@ def save_search_history(query, language, description, stargazers_count, html_url
         history = [] # если json файл не найден, мы создаём переменную с пустым список, что потом не было ошибок при добавлении данных в переменную history
 
     except json.JSONDecodeError:
-        print('Файл истории повреждён')
+        print('\nФайл истории повреждён')
         
         history = []
 
     history.append({
         'query': query,
-        'language': language,
-        'description': description,
-        'stargazers_count': stargazers_count,
-        'html_url': html_url,
-        'forks_count': forks_count,
         'searched_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     })
 
@@ -222,7 +217,8 @@ def search_repositories(query=None):
         response = requests.get(
             url,
             timeout=3,
-            params={'q': query, 'per_page': 5}
+            params={'q': query, 
+                    'per_page': 5}
         )
 
         print(response.status_code)
@@ -250,14 +246,14 @@ def search_repositories(query=None):
             html_url.append(rep['html_url'])
             forks_count.append(rep['forks_count'])
         # передаём параметры в функцию для сохранения в файл.json
-        save_search_history(query, language, description, stargazers_count, html_url, forks_count)
+        save_search_history(query)
 
         for number, rep in enumerate(repositories, start=1):
             print(number, '|', f'Название: {rep["full_name"]}')
             print(f'Язык: {rep["language"]}')
             print(f'Описание: {rep["description"]}')
             print(f'Звёзды: {rep["stargazers_count"]}')
-            print(f'Форки: {rep["forks_count"]}')
+            print(f'Форки: {rep["forks_count"]}\n')
             print(f'Ссылка: {rep["html_url"]}\n')
 
         return repositories # возвращаем repositories, чтобы использовать его за пределами функции
