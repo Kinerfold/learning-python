@@ -4,6 +4,56 @@ from datetime import datetime
 
 url = 'https://api.github.com/search/repositories'
 
+def request_save_repositories(data):
+    owner, repo_name = data['full_name'].split('/') # вывод: TheAlgorithms/Python
+    
+    url = f'https://api.github.com/repos/{owner}/{repo_name}'
+    
+    try:
+        with open('search_history.json', 'r', encoding='utf-8') as file:
+            history = json.load(file)
+        
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+
+        repository_data = response.json()
+        
+        description = []
+        language = []
+        stargazers_count = []
+        forks_count = []
+        created_at = []
+        html_url = []
+        
+        for j in repository_data:
+            description.append(j['description'])
+            language.append(j['language'])
+            stargazers_count.append(j['stargazers_count'])
+            forks_count.append(j['forks_count'])
+            html_url.append(j['html_url'])
+            created_at.append(j['created_at'])
+        
+        history.append({
+        'full_name': data,
+        'language': language,
+        'description': description,
+        'stargazers_count': stargazers_count,
+        'forks_count': forks_count,
+        'html_url': html_url,
+        'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    })
+        
+        with open('search_history.json', 'w', encoding='utf-8') as file:
+            json.dump(history, file, ensure_ascii=False, indent=4)
+            
+            print('\nРепозиторий сохранён!')
+
+    except requests.exceptions.HTTPError as e:
+        print(f'Ошибка HTTPError: {e}')
+
+    except requests.exceptions.RequestException as e:
+        print(f'Ошибка запроса: {e}')
+
 def sort_history_repositories(data):
     try:
         if not data:
@@ -56,12 +106,34 @@ def save_repositories(history):
         for number, j in enumerate(history, start=1):
             print(f'{number}: {j['query']}\nДата: {j['searched_at']}\n')
                     
-        user = int(input('Выберите номер запроса: '))
+        user = input('Напишите название запроса: ')
         
-        selected = history[user - 1]
+        response = requests.get(
+                url,
+                params={'q': user, 
+                        'per_page': 5},
+                timeout=3
+            )
+        
+        print(response.status_code)
+
+        response.raise_for_status()
+
+        data = response.json()
+        
+        repositories = data['items']
+        
+        details = {
+                'full_name': data['full_name'],
+                'description': data['description'],
+                'language': data['language'],
+                'stargazers_count': data['stargazers_count'],
+                'forks_count': data['forks_count'],
+                'html_url': data['html_url']
+            }
         
         with open('repositories.json', 'w', encoding='utf-8') as file:
-                json.dump(selected, file, ensure_ascii=False, indent=4)
+                json.dump(details, file, ensure_ascii=False, indent=4)
                 
                 print('\nРепозиторий сохранён!')
         
