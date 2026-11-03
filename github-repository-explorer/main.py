@@ -4,57 +4,56 @@ from datetime import datetime
 
 url = 'https://api.github.com/search/repositories'
 
-def request_save_repositories(data):
-    owner, repo_name = data['full_name'].split('/') # вывод: TheAlgorithms/Python
-    
-    url = f'https://api.github.com/repos/{owner}/{repo_name}'
-    
+def save_repositories():
     try:
-        with open('search_history.json', 'r', encoding='utf-8') as file:
-            history = json.load(file)
-        
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
+        history = load_search_history()
 
-        repository_data = response.json()
-        
-        description = []
-        language = []
-        stargazers_count = []
-        forks_count = []
-        created_at = []
-        html_url = []
-        
-        for j in repository_data:
-            description.append(j['description'])
-            language.append(j['language'])
-            stargazers_count.append(j['stargazers_count'])
-            forks_count.append(j['forks_count'])
-            html_url.append(j['html_url'])
-            created_at.append(j['created_at'])
-        
-        history.append({
-        'full_name': data,
-        'language': language,
-        'description': description,
-        'stargazers_count': stargazers_count,
-        'forks_count': forks_count,
-        'html_url': html_url,
-        'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    })
-        
-        with open('search_history.json', 'w', encoding='utf-8') as file:
-            json.dump(history, file, ensure_ascii=False, indent=4)
+        if not history:
+            print('\nИстория запросов пуста!')
+            return
+
+        print('\nИстория запросов:')
+
+        for number, entry in enumerate(history, start=1):
+            print(f'{number}. Запрос: {entry["query"]}')
+            print(f'Дата: {entry["searched_at"]}\n')
+
+        choice = int(input('Выберите номер запроса: '))
+
+        selected_history = history[choice - 1]
+
+        query = selected_history['query']
+
+        repositories = search_repositories(query) # передаётся query, поэтому внутри функции уже записывается в params и делает запрос на сервер
+
+        try:
+            repo_choice = int(input('Выберите номер репозитория: '))
+
+            selected_repository = repositories[repo_choice - 1]
+
+            repository_data = get_repository_details(selected_repository)
             
+            try:
+                with open('repositories.json', 'r', encoding='utf-8') as file:
+                    data = json.load(file)
+            
+            except FileNotFoundError:
+                data = []
+            
+            data.append(repository_data)
+            
+            with open('repositories.json', 'w', encoding='utf-8') as file:
+                    json.dump(data, file, ensure_ascii=False, indent=4)
+
             print('\nРепозиторий сохранён!')
 
-    except requests.exceptions.HTTPError as e:
-        print(f'Ошибка HTTPError: {e}')
+        except ValueError:
+            print('Нужно ввести целое число')
 
-    except requests.exceptions.RequestException as e:
-        print(f'Ошибка запроса: {e}')
+    except ValueError:
+        print('Нужно ввести целое число')
 
-def sort_history_repositories(data):
+def sort_history_repositories(data): # НЕ СДЕЛАНО!
     try:
         if not data:
             print('\nИстория запросов пуста')
@@ -95,53 +94,6 @@ def sort_history_repositories(data):
 
     except ValueError:
         print('Нужно ввести целое число')
-
-def save_repositories(history):
-    try:
-        history = load_search_history()
-        
-        if not history:
-            print('\nИстория запросов пуста!')
-        
-        for number, j in enumerate(history, start=1):
-            print(f'{number}: {j['query']}\nДата: {j['searched_at']}\n')
-                    
-        user = input('Напишите название запроса: ')
-        
-        response = requests.get(
-                url,
-                params={'q': user, 
-                        'per_page': 5},
-                timeout=3
-            )
-        
-        print(response.status_code)
-
-        response.raise_for_status()
-
-        data = response.json()
-        
-        repositories = data['items']
-        
-        details = {
-                'full_name': data['full_name'],
-                'description': data['description'],
-                'language': data['language'],
-                'stargazers_count': data['stargazers_count'],
-                'forks_count': data['forks_count'],
-                'html_url': data['html_url']
-            }
-        
-        with open('repositories.json', 'w', encoding='utf-8') as file:
-                json.dump(details, file, ensure_ascii=False, indent=4)
-                
-                print('\nРепозиторий сохранён!')
-        
-    except ValueError:
-        print('\nДолжно быть целое число')
-    
-    except FileNotFoundError:
-        print('\nФайл повреждён')
 
 def delete_search_history(): # удаляет отдельную историю или же всю историю запросов
     try:
@@ -301,17 +253,17 @@ def search_repositories(query=None):
     except (ValueError, KeyError) as e:
         print(f'Ошибка ответа: {e}')
 
-def get_repository_details(repository): # подробная информация репозиториев
-    owner, repo_name = repository['full_name'].split('/') # вывод: TheAlgorithms/Python
+def get_repository_details(repository):
+    full_name = repository['full_name']
     
-    url = f'https://api.github.com/repos/{owner}/{repo_name}'
-    
+    url = f'https://api.github.com/repos/{full_name}'
+
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()
 
         repository_data = response.json()
-        
+
         print('\nПодробная информация о репозитории:\n')
         print(f'Название: {repository_data["full_name"]}')
         print(f'Описание: {repository_data["description"]}')
@@ -320,6 +272,14 @@ def get_repository_details(repository): # подробная информаци�
         print(f'Форки: {repository_data["forks_count"]}')
         print(f'Дата создания: {repository_data["created_at"]}\n')
         print(f'Ссылка: {repository_data["html_url"]}\n')
+
+        return repository_data
+
+    except requests.exceptions.HTTPError as e:
+        print(f'Ошибка HTTPError: {e}')
+
+    except requests.exceptions.RequestException as e:
+        print(f'Ошибка запроса: {e}')
 
     except requests.exceptions.HTTPError as e:
         print(f'Ошибка HTTPError: {e}')
@@ -359,10 +319,7 @@ def menu(): # консольное меню
                 show_repositories(repositories)
         
         elif choice == '2':
-            history = load_search_history()
-            
-            if history:
-                save_repositories(history)
+            save_repositories()
 
         elif choice == '3':
             show_search_history()
