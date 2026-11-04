@@ -26,29 +26,30 @@ def save_repositories():
 
         repositories = search_repositories(query) # передаётся query, поэтому внутри функции уже записывается в params и делает запрос на сервер
 
-        try:
-            repo_choice = int(input('Выберите номер репозитория: '))
+        repo_choice = int(input('Выберите номер репозитория: '))
 
-            selected_repository = repositories[repo_choice - 1]
+        selected_repository = repositories[repo_choice - 1]
 
-            repository_data = get_repository_details(selected_repository)
-            
-            try:
-                with open('repositories.json', 'r', encoding='utf-8') as file:
+        repository_data = get_repository_details(selected_repository)
+        
+        try:    
+            with open('repositories.json', 'r', encoding='utf-8') as file:
                     data = json.load(file)
+        
+        except (json.JSONDecodeError, FileNotFoundError):
+            print('Файл json был повреждён')
             
-            except FileNotFoundError:
-                data = []
+            data = []
+        
+        if type(data) is dict:
+            data = [data]
+        
+        data.append(repository_data)
             
-            data.append(repository_data)
-            
-            with open('repositories.json', 'w', encoding='utf-8') as file:
-                    json.dump(data, file, ensure_ascii=False, indent=4)
+        with open('repositories.json', 'w', encoding='utf-8') as file:
+                json.dump(data, file, ensure_ascii=False, indent=4)
 
-            print('\nРепозиторий сохранён!')
-
-        except ValueError:
-            print('Нужно ввести целое число')
+        print('\nРепозиторий сохранён!')
 
     except ValueError:
         print('Нужно ввести целое число')
