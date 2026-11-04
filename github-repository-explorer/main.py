@@ -4,7 +4,7 @@ from datetime import datetime
 
 url = 'https://api.github.com/search/repositories'
 
-def save_repositories():
+def save_repositories(): # СОХРАНЯЕТ РЕПОЗИТОРИИ в файл
     try:
         history = load_search_history()
 
@@ -54,49 +54,7 @@ def save_repositories():
     except ValueError:
         print('Нужно ввести целое число')
 
-def sort_history_repositories(data): # НЕ СДЕЛАНО!
-    try:
-        if not data:
-            print('\nИстория запросов пуста')
-        
-        sort = int(input('''Сортировать по:\n
-                     | 1. Количеству звёзд\n
-                     | 2. Названию\n
-                     | 3. Количеству форков\n
-                     '''))
-        
-        if sort == 1:
-            choice = int(input('| 1. По возрастанию\n| 2. По убыванию\n'))
-            pass
-            
-            if choice == 1:
-                sort_repo = sorted(
-                    data,
-                    key=lambda rep: rep['stargazers_count']
-                )
-                    
-                print(sort_repo)
-            
-            elif choice == 2:
-                sort_repo = sorted(
-                    data,
-                    key=lambda rep: rep['stargazers_count'],
-                    reverse=True # по умолчанию, sorted() сортирует по возрастанию. True - по убыванию
-                )    
-
-                print(sort_repo)
-        
-        elif sort == 2:
-            pass
-        
-        elif sort == 3:
-            choice = int(input('| 1. По возрастанию\n| 2. По убыванию\n'))
-            pass
-
-    except ValueError:
-        print('Нужно ввести целое число')
-
-def delete_search_history(): # удаляет отдельную историю или же всю историю запросов
+def delete_search_history(): # УДАЛЯЕТ отдельную ИСТОРИЮ или же всю историю запросов
     try:
         history = load_search_history()
         
@@ -138,7 +96,7 @@ def delete_search_history(): # удаляет отдельную историю 
     except ValueError:
         print('Нужно ввести целое число')
 
-def old_search_history(): # просмотр СТАРОЙ истории запросов
+def old_search_history(): # ПРОСМОТР СТАРОЙ истории запросов
     try:
         history = load_search_history()
 
@@ -161,7 +119,7 @@ def old_search_history(): # просмотр СТАРОЙ истории зап�
     except ValueError:
         print('Нужно ввести целое число')
 
-def show_search_history(): # показ всей истории запросов
+def show_search_history(): # ПОКАЗ всей ИСТОРИИ запросов
     history = load_search_history()
 
     if not history:
@@ -174,7 +132,7 @@ def show_search_history(): # показ всей истории запросов
         print(f'{number}. Запрос: {entry["query"]}')
         print(f'Дата: {entry["searched_at"]}')
 
-def load_search_history(): # загружает историю запросов из файла json
+def load_search_history(): # ЗАГРУЖАЕТ ИСТОРИЮ запросов из файла json
     try:
         with open('search_history.json', 'r', encoding='utf-8') as file:
             return json.load(file)
@@ -185,7 +143,7 @@ def load_search_history(): # загружает историю запросов 
     except (json.JSONDecodeError, OSError) as error:
         print(f'Не удалось прочитать историю: {error}')
 
-def save_search_history(query): # сохраняет историю запросов в json файле
+def save_search_history(query): # СОХРАНЯЕТ ИСТОРИЮ запросов в json файле
     try:
         with open('search_history.json', 'r', encoding='utf-8') as file:
             history = json.load(file)
@@ -210,20 +168,22 @@ def save_search_history(query): # сохраняет историю запрос
     except OSError as error:
         print(f'Не удалось сохранить историю: {error}')
 
-def search_repositories(query=None):
+def search_repositories(query=None): # ПОИСК репозиториев
     if query is None:
-        query = input('Поиск репозиториев: ').strip() # очищает ответ пользователя от пробелов, чтобы строка не была пустой
+        query = input('Поиск репозиториев: ').strip() # .strip() очищает ответ пользователя от пробелов, чтобы строка не была пустой
 
         if not query:
             print('Поисковый запрос пуст')
             return
 
     try:
+        pages = int(input('Количество страниц с репозиториями: '))
+        
         response = requests.get(
             url,
             timeout=3,
             params={'q': query, 
-                    'per_page': 5}
+                    'per_page': pages}
         )
 
         print(response.status_code)
@@ -244,7 +204,6 @@ def search_repositories(query=None):
             print(number, '|', f'Название: {rep["full_name"]}')
             print(f'Язык: {rep["language"]}')
             print(f'Описание: {rep["description"]}\n')
-            print(f'Ссылка: {rep["html_url"]}\n')
 
         return repositories # возвращаем repositories, чтобы использовать его за пределами функции
 
@@ -254,7 +213,7 @@ def search_repositories(query=None):
     except (ValueError, KeyError) as e:
         print(f'Ошибка ответа: {e}')
 
-def get_repository_details(repository):
+def get_repository_details(repository):# ПОКАЗЫВАЕТ ПОДРОБНУЮ ИНФОРМАЦИЮ про репозиториев
     full_name = repository['full_name']
     
     url = f'https://api.github.com/repos/{full_name}'
@@ -288,7 +247,7 @@ def get_repository_details(repository):
     except requests.exceptions.RequestException as e:
         print(f'Ошибка запроса: {e}')
 
-def show_repositories(repositories): # показывает подробную информацию о выбранном репозитории
+def show_repositories(repositories): # ВЫБИРАЕМ репозиторий для показа подробной инфы
     try:
         choice = int(input('Выбери номер репозитория: '))
 
@@ -302,7 +261,7 @@ def show_repositories(repositories): # показывает подробную �
     except ValueError:
         print('Нужно ввести целое число')
 
-def menu(): # консольное меню
+def menu(): # МЕНЮ
     while True:
         choice = input('\n\t1. Поиск репозиториев\n\t'
                        '2. Сохранение репозиториев\n\t'
@@ -310,8 +269,7 @@ def menu(): # консольное меню
                         '\t3. Показать историю\n\t'
                       '4. Повторить поиск из истории\n\t'
                       '5. Удаление поиска из истории\n\t'
-                      '6. Вывод и сортировка репозиториев из истории запросов\n\t'
-                       '\n7. Выход\n\n')
+                       '\n6. Выход\n\n')
 
         if choice == '1':
             repositories = search_repositories()
@@ -332,16 +290,10 @@ def menu(): # консольное меню
             delete_search_history()
 
         elif choice == '6':
-            data = load_search_history()
-            
-            if data:
-                sort_history_repositories(data)
-
-        elif choice == '7':
             break
 
         else:
             print('Неизвестная команда')
 
-if __name__ == '__main__': # файл запускается напрямую. можно добавить if
+if __name__ == '__main__': # Файл запускается напрямую. Можно добавить if
     menu()
