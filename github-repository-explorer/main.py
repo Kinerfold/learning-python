@@ -4,6 +4,36 @@ from datetime import datetime
 
 url = 'https://api.github.com/search/repositories'
 
+def sort(): # СОРТИРОВКА по языку программирования
+    quantity = int(input('Количество страниц с репозиториями: '))
+    
+    name = input('\nСортировать по Названию: ')
+    
+    language = input('\nСортировать по ЯП: ')
+    
+    url = f"https://api.github.com/search/repositories?q={name}+language:{language}"
+    
+    response = requests.get(
+        url, 
+        timeout=10,
+        params={'per_page': quantity}
+        )
+    response.raise_for_status()
+
+    history = response.json()
+    
+    data = history['items']
+    
+    for number, j in enumerate(data, start=1):
+        print(f'\n{number}. \n| Название: {j['full_name']}\n')
+        print(f'| Описание: {j['description']}')
+        print(f'| ЯП: {j['language']}')
+        print(f'| Звёзды: {j['stargazers_count']}')
+        print(f'| Форки: {j['forks_count']}')
+        print(f'| Дата создания: {j['created_at']}')
+        print(f'| Просмотрено: {j['watchers']}\n')
+        print(f'| Ссылка: {j['html_url']}')
+
 def save_repositories(): # СОХРАНЯЕТ РЕПОЗИТОРИИ в файл
     try:
         history = load_search_history()
@@ -265,31 +295,34 @@ def menu(): # МЕНЮ
     while True:
         choice = input('\n\t1. Поиск репозиториев\n\t'
                        '2. Сохранение репозиториев\n\t'
+                       '3. Фильтрация по Параметрам\n'
                        '\n'
-                        '\t3. Показать историю\n\t'
-                      '4. Повторить поиск из истории\n\t'
-                      '5. Удаление поиска из истории\n\t'
-                       '\n6. Выход\n\n')
+                        '\t4. Показать историю\n\t'
+                      '5. Повторить поиск из истории\n\t'
+                      '6. Удаление поиска из истории\n\t'
+                       '\n7. Выход\n\n')
 
         if choice == '1':
             repositories = search_repositories()
 
-            if repositories:
-                show_repositories(repositories)
+            show_repositories(repositories)
         
         elif choice == '2':
             save_repositories()
 
-        elif choice == '3':
-            show_search_history()
+        elif choice == '3':            
+            sort()
         
         elif choice == '4':
-            old_search_history()
+            show_search_history()
         
         elif choice == '5':
-            delete_search_history()
+            old_search_history()
 
         elif choice == '6':
+            delete_search_history()
+            
+        elif choice == '7':
             break
 
         else:
