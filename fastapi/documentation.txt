@@ -1,0 +1,136 @@
+!/ Аннотация типов !/
+
+//
+def get_full_name(first_name: str, last_name: str):
+    full_name = first_name.title() + " " + last_name.title()
+    return full_name
+
+
+print(get_full_name("john", "doe"))
+//
+
+first_name: str, last_name: str - это аннотация типов
+
+
+//
+def get_name_with_age(name: str, age: int):
+    name_with_age = name + " is this old: " + age
+    
+    return name_with_age
+
+print(get_name_with_age('Egor', 17))
+//
+
+Пример выводит ошибку TypeError: can only concatenate str (not "int") to str
+
+Чтобы исправить ошибку, нужно преобразовать age в строку с помощью str(age)
+
+
+
+Можно объявлять все стандартные типы Python, не только str.
+
+int
+float
+bool
+bytes
+
+
+
+Если хотите объявить, что что-то имеет 'любой тип', можно использовать Any из typing:
+
+//
+from typing import Any
+
+def some_function(data: Any):
+    print(data)
+//
+
+Зачем это нужно?
+
+Читаемость кода. Другому разработчику проще понять, какие данные ожидает функция.
+
+
+
+Также, можно определить параметры типов:
+//
+def process_items(items: list[str]):
+    for item in items:
+        print(item)
+//
+
+Здесь мы определяем для параметра items - тип list[str].
+
+То есть, items принимает str как list. 
+
+
+Можно передавать больше, чем 1 элемент для параметра в функции:
+//
+def process_items(items_t: tuple[int, int, str], items_s: set[bytes]):
+    return items_t, items_s
+//
+
+Переменная items_t — это tuple из 3 элементов: int, ещё один int и str.
+Переменная items_s — это set, и каждый элемент имеет тип bytes.
+
+Для dict:
+//
+def process_items(prices: dict[str, float]):
+    for item_name, item_price in prices.items():
+        print(item_name)
+        print(item_price)
+//
+
+Переменная prices — это dict:
+Ключи этого dict имеют тип str (скажем, название каждой позиции).
+Значения этого dict имеют тип float (скажем, цена каждой позиции).
+
+
+
+!/ Union !/
+
+Вы можете объявить, что переменная может быть одним из нескольких типов, например, int или str.
+
+Чтобы это определить, используйте вертикальную черту (|) для разделения обоих типов.
+
+Это называется «объединение» (union), 
+потому что переменная может быть чем угодно из объединения этих двух множеств типов.
+
+//
+def process_item(item: int | str):
+    print(item)
+//
+
+Это означает, что item может быть int или str.
+
+
+
+!/ async и await !/
+
+
+//
+burgers = await get_burgers(2)
+//
+
+Ключ здесь - await. Он говорит Python, что нужно подождать, 
+пока get_burgers(2) закончит своё дело, прежде чем сохранять результат в burgers
+
+Благодаря этому Python будет знать, что за это время можно заняться чем-то ещё.
+
+
+//
+async def get_burgers(number: int);
+    return burgers
+//
+Без async - не асинхронный кода
+
+
+ВЕСЬ КОД ВМЕСТЕ:
+
+\\
+@app.get("/burgers")
+async def read_burgers():
+    burgers = await get_burgers(2)
+    return burgers
+\\
+
+await можно использовать только внутри функций с async
