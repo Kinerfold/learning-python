@@ -134,3 +134,19 @@ async def read_burgers():
 \\
 
 await можно использовать только внутри функций с async
+
+
+
+//
+from fastapi import FastAPI
+
+app = FastAPI()
+
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+//
+
+app = экземпляр класса FastAPI. Это будет основная точка взаимодействия для создания API.
+
