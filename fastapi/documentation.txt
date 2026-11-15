@@ -201,3 +201,70 @@ class Color(Enum):
 print(Color.RED.name)  # RED
 print(Color.RED.value) # 1   
 //
+
+
+
+
+!/ Тело запроса !/
+
+Чтобы объявить тело запроса, используйте модели Pydantic.
+
+//
+from pydantic import BaseModel
+//
+
+
+Создание модель данных как класс, наследующийся от BaseModel
+
+Чтобы добавить её в вашу операцию пути, объявите её
+
+//
+class Item(BaseModel): # МОДЕЛЬ ДАННЫХ КАК КЛАСС
+    name: str
+    description: str | None = None
+    price: float
+    tax: float | None = None
+
+
+app = FastAPI()
+
+
+@app.post("/items/") # ОБЪЯВЛЯЕМ МОДЕЛЬ ДАННЫХ
+async def create_item(item: Item): # ТИП ПАРАМЕТРА КАК НАША МОДЕЛЬ
+    return item
+//
+
+Внимание! Используем POST запрос, а не GET, чтобы отправить данные
+
+Пример вычисления скидки:
+//
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+class Item(BaseModel):
+    name: str
+    price: float
+    quantity: int
+    description: str | None = None
+    discount: float | None = None
+
+
+app = FastAPI()
+
+
+@app.post('/items/')
+async def root(item: Item):
+    item_model = item.model_dump()
+    
+    if item.discount:
+        final_price = item.price - (item.price * item.discount) / 100
+        item_model.update({'price_with_discount': final_price})
+        
+        return item_model
+//
+
+item.model_dump() нужен, чтобы превратить объекты Pydantic (Item) в обычный словар
+
+Нужно это, чтобы легко изменять и вписывать новые данные
+
+
