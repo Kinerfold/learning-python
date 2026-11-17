@@ -335,4 +335,79 @@ async def read_items(
  $ : заканчивается здесь, после fixedquery нет никаких символов
 
 
+Annotated - объединяет тип и дополнительные данные. Позволяет прикрепить эти метаданные к типу данных,
+не изменяя сам тип
+
+Query - задаёт параметры валидации и метаданные для FastAPI.
+
+
+
+
+!/ Query-параметр - список / несколько значений !/
+
+Чтобы FastAPI принимал несколько значений Одного query-параметра и сохранял их в список, нужно:
+//
+@app.get("/items/")
+async def read_items(q: Annotated[list[str] | None, Query()] = None):
+    query_items = {"q": q}
+    return query_items
+//
+
+Что здесь происходит:
+- q — название Query-параметра.
+
+- list[str] — параметр принимает список строк.
+
+- | None — допускается значение None.
+
+- Query() — явно указывает FastAPI, что это Query-параметр.
+
+- None — параметр необязательный.
+
+Query() обязателен, т.к. мы сообщаем, что это Query-параметр, а не тело запроса
+
+
+Если смотреть через URL: http://127.0.0.1:8000/items/?q=foo&q=bar 
+
+Будет 2 q
+
+
+
+Можно сделать значения по умолчанию:
+//
+async def read_items(q: Annotated[list[str], Query()] = ["foo", "bar"]):
+//
+
+
+
+!/ Кастомная валидация !/
+
+Например, эта кастомная проверка убеждается, что ID элемента начинается с isbn- или с imdb-:
+//
+from pydantic import AfterValidator
+
+app = FastAPI()
+
+data = {
+    "isbn-9781529046137": "The Hitchhiker's Guide to the Galaxy",
+    "imdb-tt0371724": "The Hitchhiker's Guide to the Galaxy",
+    "isbn-9781439512982": "Isaac Asimov: The Complete Stories, Vol. 2",
+}
+
+
+def check_valid_id(id: str): # ПРОВЕРКА
+    if not id.startswith(("isbn-", "imdb-")):
+        raise ValueError('Invalid ID format, it must start with "isbn-" or "imdb-"')
+    return id
+
+
+@app.get("/items/")
+async def read_items(
+    id: Annotated[str | None, AfterValidator(check_valid_id)] = None, # УКАЗЫВАЕМ ЧРЕЗЕ AfterValidator(check_valid_id)
+):
+    pass
+//
+
+if not id.startswith(("isbn-", "imdb-")) - если id не начинается с ("isbn-", "imdb-")
+
 
