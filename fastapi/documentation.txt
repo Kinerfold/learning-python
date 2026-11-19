@@ -411,3 +411,89 @@ async def read_items(
 if not id.startswith(("isbn-", "imdb-")) - если id не начинается с ("isbn-", "imdb-")
 
 
+
+
+
+!/ Модели Query-Параметров !/
+
+Можно объявить Query-Параметры в классе Pydantic:
+//
+class FilterParams(BaseModel):
+    limit: int = Field(100, gt=0, le=100)
+    offset: int = Field(0, ge=0)
+    order_by: Literal["created_at", "updated_at"] = "created_at"
+    tags: list[str] = []
+
+
+@app.get("/items/")
+async def read_items(filter_query: Annotated[FilterParams, Query()]):
+    return filter_query
+//
+
+Field() - функция, которая задаёт настройки и ограничения полей моделей Pydantic
+Его лучше использовать только в классах Pydantic, но можно и не в них.
+
+
+Field(100, gt=0, le=100) - значение по умолчанию. 
+Greater Than (gt) - больше 0. Less Than or Equal (le) - меньше или равно 100
+
+
+list[str] = [] - список строки. Значение по умолчани - список.
+
+
+Literal - ограничивает значение конкретными вариантами.
+В данном случае order_by может принимать только:
+- "created_at"
+- "updated_at"
+
+
+
+Также, можно Запретить Дополнительные Quer-Параметры:
+//class FilterParams(BaseModel):
+    model_config = {"extra": "forbid"} # ВОТ ЭТА НАСТРОЙКА ОГРАНИЧИВАЕТ
+
+    limit: int = Field(100, gt=0, le=100)
+    offset: int = Field(0, ge=0)
+    order_by: Literal["created_at", "updated_at"] = "created_at"
+    tags: list[str] = []
+//
+
+Если пользователь введёт /items/?limit=10&offset=5&tool=plumbus,
+то FastAPI вернёт Ошибку HTTP 422 (Unprocessable Entity).
+
+Без model_config, FastAPI просто проигнорирует запрос.
+
+
+Варианты extra:
+ignore	Игнорировать неизвестные поля (по умолчанию)
+forbid	Запрещать неизвестные поля
+allow	Разрешать и сохранять неизвестные поля
+
+
+extra="forbid" запрещает передавать поля, которые вообще не были объявлены.
+
+
+
+
+Также, можно задать Необязательные Модели Query-Параметров:
+//
+class DateRange(BaseModel):
+    start: int
+    end: int
+
+
+@app.get("/items/")
+async def read_items(
+    limit: int = 10,
+    date_range: Annotated[DateRange | None, Query()] = None, # НЕОБЯЗАТЕЛЬНЫЕ МОДЕЛИ
+):
+    return {"limit": limit, "date_range": date_range}
+//
+
+Если ни start, ни end не переданы, date_range равен None. 
+Если передан хотя бы один из них, FastAPI валидирует модель и требует оба поля.
+
+
+
+
+
