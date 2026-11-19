@@ -418,6 +418,11 @@ if not id.startswith(("isbn-", "imdb-")) - если id не начинается
 
 Можно объявить Query-Параметры в классе Pydantic:
 //
+from typing import Annotated, Literal
+
+from fastapi import FastAPI, Query
+from pydantic import BaseModel, Field
+
 class FilterParams(BaseModel):
     limit: int = Field(100, gt=0, le=100)
     offset: int = Field(0, ge=0)
